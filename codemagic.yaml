@@ -1,0 +1,37 @@
+# JustAReminder: de eerste cloudbuild controleert alleen dat de iOS-code compileert.
+# Dit levert GEEN TestFlight-build op en activeert GEEN betalingen.
+workflows:
+  ios-simulator-controle:
+    name: JustAReminder - iOS simulator controle (ongetekend)
+    max_build_duration: 60
+    instance_type: mac_mini_m2
+    environment:
+      node: v22.11.0
+      xcode: latest
+      cocoapods: default
+    scripts:
+      - name: Installeer afhankelijkheden en controleer bestanden
+        script: |
+          npm install
+          npm run check
+          node scripts/check-github.mjs
+      - name: Genereer iOS project met Capacitor
+        script: |
+          npx cap add ios
+          npx cap sync ios
+          cd ios/App && pod install
+      - name: Compileer iOS voor simulator zonder signing
+        script: |
+          xcodebuild build \
+            -workspace "ios/App/App.xcworkspace" \
+            -scheme "App" \
+            -sdk iphonesimulator \
+            -destination 'generic/platform=iOS Simulator' \
+            -configuration Debug \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO
+    artifacts:
+      - $HOME/Library/Developer/Xcode/DerivedData/**/Build/**/*.app
+      - $HOME/Library/Developer/Xcode/DerivedData/**/Build/**/*.dSYM
+      - /tmp/xcodebuild_logs/*.log

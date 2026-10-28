@@ -1,0 +1,40 @@
+JUSTAREMINDER iOS v1.0 — BRONPROJECT (28 oktober 2026)
+======================================================
+DIT IS GEEN IPA, GEEN TESTFLIGHT-BUILD EN NOG GEEN GEKEURDE APP.
+
+WEL GEDAAN:
+- Privé en Family vanuit je originele ZIPs behouden.
+- Gezamenlijke startpagina en mobiel abonnementenscherm.
+- 8 Apple-product-ID's opgenomen (4 basis, 4 extra bundels).
+- Directe Mollie-checkoutknoppen in de native testwrapper onderschept.
+- Capacitor 8 iOS-bronconfig met app-ID eu.justareminder.app.
+- Beveiligde inkoopketen uitgeschreven en concept-native StoreKit 2 Swift plugin toegevoegd.
+- Geen website, Supabase-productiedatabase of echte abonnementen gewijzigd.
+
+NOG NIET KLAAR:
+- Geen werkende StoreKit-aankopen, server-side Apple JWS-verificatie of Supabase-rechtenkoppeling.
+- Geen echte APNs pushmeldingen of betrouwbare iOS-achtergrondreminders.
+- Geen Xcode-native project gegenereerd of gecompileerd: hier ontbreken macOS/Xcode
+  en npm-netwerktoegang. Gebruik het Mac-script na kopieren naar een Mac.
+- Login en Family-functies moeten fysiek worden getest. Uitnodigings-URL Family onbekend.
+- Apple review screenshot ontbreekt zolang er geen echte app-build is.
+
+WINDOWS PREVIEW
+1. Pak ZIP helemaal uit.
+2. Dubbelklik 01-TEST-OP-WINDOWS.bat.
+3. Open http://localhost:4173.
+4. Kies Privé, Family of Apple-abonnementen bekijken.
+
+MAC iOS-PROJECT STARTEN
+1. Installeer Xcode en Node.js 22+ op de Mac.
+2. Kopieer deze gehele map naar Mac.
+3. Start 02-BOUW-OP-MAC.command (of in Terminal: npm install; npx cap add ios;
+   npx cap sync ios; npx cap open ios).
+4. Zet de Apple Developer Team-ID en signing in Xcode.
+5. Laat de StoreKit demo nog in testmodus; deploy niets naar gebruikers.
+6. Native StoreKit 2 conceptbestanden in ios-source NIET blind toevoegen voordat
+   de backend-verificatie, app-user-binding en refund/verlengingslogica klaar zijn.
+
+BEVEILIGING:
+Neem geen service_role, Mollie LIVE API sleutel, Apple .p8 of andere secrets op in appcode.
+Lees docs/APPLE-AANKOPEN-BACKEND.md en docs/IOS-TOESTELLEN-EN-REVIEW.md.

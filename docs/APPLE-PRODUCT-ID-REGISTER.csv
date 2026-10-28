@@ -1,0 +1,9 @@
+﻿product_id,reference_name,plan,duration,nl_doelprijs_incl_btw,herinneringen
+eu.justareminder.private.monthly.v2,JustAReminder Private Monthly,Privé Plus,1 maand,"€ 4,99",25
+eu.justareminder.private.yearly,JustAReminder Private Yearly,Privé Plus,1 jaar,"€ 49,99",25
+eu.justareminder.premium.monthly,JustAReminder Premium Monthly,Premium,1 maand,"€ 9,99",50
+eu.justareminder.premium.yearly,JustAReminder Premium Yearly,Premium,1 jaar,"€ 99,99",50
+eu.justareminder.extra50.monthly,JustAReminder Extra 50 Monthly,Extra +50,1 maand,"€ 3,00",+50
+eu.justareminder.extra100.monthly,JustAReminder Extra 100 Monthly,Extra +100,1 maand,"€ 6,00",+100
+eu.justareminder.extra150.monthly,JustAReminder Extra 150 Monthly,Extra +150,1 maand,"€ 9,00",+150
+eu.justareminder.extra200.monthly,JustAReminder Extra 200 Monthly,Extra +200,1 maand,"€ 12,00",+200
