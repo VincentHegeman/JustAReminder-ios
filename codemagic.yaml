@@ -1,5 +1,6 @@
-# JustAReminder - eerste iOS simulatorcontrole, zonder publicatie of betalingen
-# Capacitor 8 gebruikt standaard Swift Package Manager (SPM), niet CocoaPods.
+# JustAReminder iOS — simulatorcontrole + ondertekende IPA-controle.
+# Geen automatische upload naar App Store Connect of TestFlight.
+# De echte StoreKit-koppeling en iOS-meldingen zijn nog niet afgerond.
 workflows:
   ios-simulator-controle:
     name: JustAReminder - iOS simulator controle (ongetekend)
@@ -37,3 +38,46 @@ workflows:
     artifacts:
       - $HOME/Library/Developer/Xcode/DerivedData/**/Build/**/*.app
       - $HOME/Library/Developer/Xcode/DerivedData/**/Build/**/*.dSYM
+
+  ios-ipa-controle:
+    name: JustAReminder - iOS ondertekende IPA controle (geen upload)
+    max_build_duration: 90
+    instance_type: mac_mini_m2
+    integrations:
+      app_store_connect: JustAReminder
+    environment:
+      node: v22.11.0
+      xcode: latest
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: eu.justareminder.app
+    scripts:
+      - name: Installeer afhankelijkheden en controleer bestanden
+        script: |
+          set -eu
+          npm install
+          npm run check
+          node scripts/check-github.mjs
+      - name: Genereer iOS-project met Capacitor 8 (SPM)
+        script: |
+          set -eu
+          npx cap add ios --packagemanager SPM
+          npx cap sync ios
+          test -f ios/App/App.xcodeproj/project.pbxproj
+      - name: Configureer code signing voor Apple-distributie
+        script: |
+          set -eu
+          cd ios/App
+          xcode-project use-profiles
+      - name: Bouw ondertekende IPA zonder automatisch publiceren
+        script: |
+          set -eu
+          cd ios/App
+          xcode-project build-ipa \
+            --project 'App.xcodeproj' \
+            --scheme 'App' \
+            --config 'Release'
+    artifacts:
+      - ios/App/build/ios/ipa/*.ipa
+      - build/ios/ipa/*.ipa
+      - /tmp/xcodebuild_logs/*.log
