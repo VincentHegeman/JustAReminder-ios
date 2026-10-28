@@ -1,5 +1,5 @@
-# JustAReminder: de eerste cloudbuild controleert alleen dat de iOS-code compileert.
-# Dit levert GEEN TestFlight-build op en activeert GEEN betalingen.
+# JustAReminder - eerste iOS simulatorcontrole, zonder publicatie of betalingen
+# Capacitor 8 gebruikt standaard Swift Package Manager (SPM), niet CocoaPods.
 workflows:
   ios-simulator-controle:
     name: JustAReminder - iOS simulator controle (ongetekend)
@@ -8,30 +8,32 @@ workflows:
     environment:
       node: v22.11.0
       xcode: latest
-      cocoapods: default
     scripts:
       - name: Installeer afhankelijkheden en controleer bestanden
         script: |
+          set -eu
           npm install
           npm run check
           node scripts/check-github.mjs
-      - name: Genereer iOS project met Capacitor
+      - name: Genereer iOS-project met Capacitor 8 (SPM)
         script: |
-          npx cap add ios
+          set -eu
+          npx cap add ios --packagemanager SPM
           npx cap sync ios
-          cd ios/App && pod install
-      - name: Compileer iOS voor simulator zonder signing
+          test -f ios/App/App.xcodeproj/project.pbxproj
+          echo 'iOS-project succesvol aangemaakt met Swift Package Manager.'
+      - name: Compileer iOS voor simulator zonder ondertekening
         script: |
+          set -eu
           xcodebuild build \
-            -workspace "ios/App/App.xcworkspace" \
-            -scheme "App" \
+            -project 'ios/App/App.xcodeproj' \
+            -scheme 'App' \
             -sdk iphonesimulator \
             -destination 'generic/platform=iOS Simulator' \
             -configuration Debug \
-            CODE_SIGN_IDENTITY="" \
+            CODE_SIGN_IDENTITY='' \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGNING_ALLOWED=NO
     artifacts:
       - $HOME/Library/Developer/Xcode/DerivedData/**/Build/**/*.app
       - $HOME/Library/Developer/Xcode/DerivedData/**/Build/**/*.dSYM
-      - /tmp/xcodebuild_logs/*.log
