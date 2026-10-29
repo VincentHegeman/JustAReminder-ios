@@ -1,9 +1,8 @@
-# JustAReminder — uitsluitend ondertekende IPA-controle.
-# Voorkomt dat Codemagic de reeds geslaagde simulatorworkflow selecteert.
-# Geen automatische upload naar TestFlight of App Store.
+# JustAReminder — ondertekende iOS-build met upload naar App Store Connect.
+# TestFlight intern testen na Apple-verwerking; NIET openbaar publiceren.
 workflows:
   ios-ipa-controle:
-    name: JustAReminder - iOS ondertekende IPA controle (geen upload)
+    name: JustAReminder - upload naar TestFlight (niet openbaar)
     max_build_duration: 90
     instance_type: mac_mini_m2
     integrations:
@@ -32,7 +31,7 @@ workflows:
           set -eu
           cd ios/App
           xcode-project use-profiles
-      - name: Bouw ondertekende IPA zonder automatisch publiceren
+      - name: Bouw ondertekende IPA voor TestFlight
         script: |
           set -eu
           cd ios/App
@@ -44,3 +43,8 @@ workflows:
       - ios/App/build/ios/ipa/*.ipa
       - build/ios/ipa/*.ipa
       - /tmp/xcodebuild_logs/*.log
+    publishing:
+      app_store_connect:
+        auth: integration
+        submit_to_testflight: false
+        submit_to_app_store: false
