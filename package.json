@@ -1,0 +1,30 @@
+{
+  "name": "justareminder-mobile",
+  "version": "1.0.0-ios-pretest",
+  "private": true,
+  "description": "JustAReminder iOS — v1.1 weergave en gebruikerservaring, StoreKit/push achter server-gate",
+  "scripts": {
+    "preview": "node scripts/preview.mjs",
+    "check": "node scripts/check.mjs",
+    "ios:add": "cap add ios",
+    "ios:sync": "cap sync ios",
+    "ios:open": "cap open ios",
+    "android:add": "cap add android",
+    "android:sync": "cap sync android",
+    "android:open": "cap open android",
+    "check:iosfix": "node scripts/test-ios-fixes.mjs"
+  },
+  "dependencies": {
+    "@capacitor/core": "^8.0.0",
+    "@capacitor/ios": "^8.0.0",
+    "@capacitor/android": "^8.0.0",
+    "@capacitor/app": "^8.0.0",
+    "@capacitor/keyboard": "^8.0.0"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^8.0.0"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  }
+}

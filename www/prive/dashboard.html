@@ -4,6 +4,8 @@
 <head>
 <script src="../app-config.js"></script>
 <script src="../mobile-compat.js"></script>
+<script src="../ios/native-fixes.js"></script>
+<link rel="stylesheet" href="../ios/native-fixes.css">
 <script src="../ios/ios-checkout-guard.js"></script>
 
 <link href="./prive-manifest.webmanifest?v=2" rel="manifest"/>
@@ -14,7 +16,7 @@
 <meta content="JustAReminder Privé" name="apple-mobile-web-app-title"/>
 <meta content="#fffaf3" name="theme-color"/>
 <meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta content="width=device-width, initial-scale=1.0,viewport-fit=cover" name="viewport"/>
 <title>JustAReminder Privé | Dashboard</title>
 <script id="jar-theme-before-paint">
 /* JustAReminder: restore the LAST SAVED theme synchronously before any CSS or account requests.
@@ -5976,7 +5978,7 @@ html[data-jar-appearance-mode="dark"] .jar-account-billing-check p{color:var(--p
 
                 wizardSubmitBusy = false;
                 document.getElementById("wizardSaveButton").disabled = false;
-                showToast(wasEditing ? "Herinnering bijgewerkt." : "Herinnering toegevoegd.");
+                showToast((document.getElementById('reminderType')?.value==='task') ? (wasEditing?'Taak bijgewerkt.':'Taak toegevoegd.') : (wasEditing?'Herinnering bijgewerkt.':'Herinnering toegevoegd.'));
 
             }
         );
@@ -6952,7 +6954,7 @@ html[data-jar-appearance-mode="dark"] .jar-account-billing-check p{color:var(--p
 
     let currentPushSubscription=null;
     function jarPrivateIsApple(){return /iPhone|iPad|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);}
-    function jarPrivateIsHomeApp(){return navigator.standalone===true||matchMedia('(display-mode:standalone)').matches;}
+    function jarPrivateIsHomeApp(){return !!(window.jarIsNativeWrapper?.())||navigator.standalone===true||matchMedia('(display-mode:standalone)').matches;}
     function jarPrivatePushHint(){
       if(window.JAR_MOBILE_TEST_BUILD)return 'Native meldingen zijn nog niet aangesloten in deze app-testversie.';
       if(!isSecureContext)return 'Open JustAReminder via HTTPS.';
@@ -9034,7 +9036,7 @@ initializeDashboard=async function(){
      setText('jarSubscriptionModalStatus',message);
      setText('jarSubscriptionStatusWhen','Dit is een actuele serverlezing. Er is geen betaling uitgevoerd.');
      const state=(!paid&&code==='free')?'warn':(paid&&(!rights.billing_live||liveVerified))?'ok':'warn';
-     const short=(name==='Gratis'?'Gratis pakket':name)+(paid?' · betaald bevestigd':' · geen betaalrechten')+(rights.billing_live===true&&!liveVerified?' · LIVE onbekend':'');
+     const short=(name==='Gratis'?'Gratis pakket':name)+(paid?' · betaald bevestigd':' · geen betaalrechten')+(rights.billing_live===true&&!liveVerified?' · betaling nog niet bevestigd':'');
      setHome('subscription',short,state);
      if(typeof updatePlanUI==='function')updatePlanUI();
    }catch(e){

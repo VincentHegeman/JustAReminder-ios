@@ -1,0 +1,52 @@
+# JustAReminder — ondertekende iOS-build met upload naar App Store Connect.
+# TestFlight intern testen na Apple-verwerking; NIET openbaar publiceren.
+workflows:
+  ios-ipa-controle:
+    name: JustAReminder - v1.1 TestFlight verbeteringen (niet openbaar)
+    max_build_duration: 90
+    instance_type: mac_mini_m2
+    integrations:
+      app_store_connect: JustAReminder
+    environment:
+      node: v22.11.0
+      xcode: latest
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: eu.justareminder.app
+    scripts:
+      - name: Installeer afhankelijkheden en controleer bestanden
+        script: |
+          set -eu
+          npm install
+          npm run check
+          node scripts/check-github.mjs
+          npm run check:iosfix
+      - name: Genereer iOS-project met Capacitor 8 (SPM)
+        script: |
+          set -eu
+          npx cap add ios --packagemanager SPM
+          npx cap sync ios
+          test -f ios/App/App.xcodeproj/project.pbxproj
+          node scripts/apply-ios-assets.mjs
+      - name: Configureer code signing voor Apple-distributie
+        script: |
+          set -eu
+          cd ios/App
+          xcode-project use-profiles
+      - name: Bouw ondertekende IPA voor TestFlight
+        script: |
+          set -eu
+          cd ios/App
+          xcode-project build-ipa \
+            --project 'App.xcodeproj' \
+            --scheme 'App' \
+            --config 'Release'
+    artifacts:
+      - ios/App/build/ios/ipa/*.ipa
+      - build/ios/ipa/*.ipa
+      - /tmp/xcodebuild_logs/*.log
+    publishing:
+      app_store_connect:
+        auth: integration
+        submit_to_testflight: false
+        submit_to_app_store: false

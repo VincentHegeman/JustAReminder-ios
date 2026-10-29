@@ -4,6 +4,8 @@
 <head>
 <script src="../app-config.js"></script>
 <script src="../mobile-compat.js"></script>
+<script src="../ios/native-fixes.js"></script>
+<link rel="stylesheet" href="../ios/native-fixes.css">
 <script src="../ios/ios-checkout-guard.js"></script>
 
 <meta charset="utf-8"/>
@@ -11,7 +13,7 @@
 var key='jar_family_last_account_theme_v2';var raw=localStorage.getItem(key);if(!raw)return;var t=JSON.parse(raw);
 var m={accent:'--jar-family-accent',background:'--jar-family-bg',surface:'--jar-family-surface',text:'--jar-family-ink',menu:'--jar-family-menu'};
 for(var k in m)if(typeof t[k]==='string'&&/^#[0-9a-f]{6}$/i.test(t[k]))document.documentElement.style.setProperty(m[k],t[k]);var extra={background:['--prod-bg','--jar-appearance-background'],surface:['--prod-surface','--jar-appearance-surface'],text:['--prod-text','--prod-muted','--jar-appearance-text'],accent:['--prod-accent','--jar-accent'],menu:['--jar-appearance-menu']};for(var n in extra)if(typeof t[n]==='string'&&/^#[0-9a-f]{6}$/i.test(t[n]))for(var i of extra[n])document.documentElement.style.setProperty(i,t[n]);
-}catch(e){}})();</script><meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+}catch(e){}})();</script><meta content="width=device-width, initial-scale=1.0,viewport-fit=cover" name="viewport"/>
 <title>JustAReminder Family</title>
 <meta content="#fffaf3" name="theme-color"/>
 <meta content="yes" name="apple-mobile-web-app-capable"/>
@@ -9676,7 +9678,7 @@ window.addEventListener('appinstalled', () => {
   jarInstallClose();
 });
 function jarInstallIsStandalone(){
- return window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+ return !!(window.jarIsNativeWrapper?.()) || window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
 }
 function jarInstallUpdateNative(){
  const pane=document.getElementById('jarInstallNative');
