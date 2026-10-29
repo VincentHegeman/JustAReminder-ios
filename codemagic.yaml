@@ -2,7 +2,7 @@
 # TestFlight intern testen na Apple-verwerking; NIET openbaar publiceren.
 workflows:
   ios-ipa-controle:
-    name: JustAReminder - upload naar TestFlight (niet openbaar)
+    name: JustAReminder - v1.1 TestFlight verbeteringen (niet openbaar)
     max_build_duration: 90
     instance_type: mac_mini_m2
     integrations:
@@ -20,12 +20,14 @@ workflows:
           npm install
           npm run check
           node scripts/check-github.mjs
+          npm run check:iosfix
       - name: Genereer iOS-project met Capacitor 8 (SPM)
         script: |
           set -eu
           npx cap add ios --packagemanager SPM
           npx cap sync ios
           test -f ios/App/App.xcodeproj/project.pbxproj
+          node scripts/apply-ios-assets.mjs
       - name: Configureer code signing voor Apple-distributie
         script: |
           set -eu

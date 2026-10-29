@@ -1,0 +1,35 @@
+/* Scoped to real iOS Capacitor app: do not alter desktop/PWA */
+:root.jar-ios-native { color-scheme: light; -webkit-text-size-adjust: 100%; }
+:root.jar-ios-native body { max-width:100%; overflow-x:clip; overscroll-behavior-x:none; }
+:root.jar-ios-native img, :root.jar-ios-native video, :root.jar-ios-native canvas {max-width:100%;}
+:root.jar-ios-native input, :root.jar-ios-native select, :root.jar-ios-native textarea {font-size:16px!important; min-width:0;}
+:root.jar-ios-native .jar-install-link,
+:root.jar-ios-native [onclick*="jarInstallOpen"],
+:root.jar-ios-native #jarInstallLayer {display:none!important;}
+:root.jar-ios-native .jar-install-layer {display:none!important;}
+@media (max-width: 900px) {
+ :root.jar-ios-native .topbar,
+ :root.jar-ios-native .mobile-header {
+   box-sizing:border-box;
+   padding-top:calc(10px + env(safe-area-inset-top, 0px))!important;
+   min-height:calc(78px + env(safe-area-inset-top, 0px))!important;
+   height:auto!important;
+ }
+ :root.jar-ios-native .auth-nav,
+ :root.jar-ios-native header.top {
+   padding-top:calc(16px + env(safe-area-inset-top, 0px))!important;
+ }
+ :root.jar-ios-native .jar26-bottom {padding-bottom:calc(8px + env(safe-area-inset-bottom, 0px))!important;}
+ :root.jar-ios-native .mobile-menu {padding-bottom:calc(28px + env(safe-area-inset-bottom, 0px))!important;}
+ :root.jar-ios-native .wrap {max-width:100%;}
+ :root.jar-ios-native .modal, :root.jar-ios-native .wizard-modal,
+ :root.jar-ios-native .jar-install-dialog {max-width:calc(100vw - 12px);}
+ :root.jar-ios-native .wizard-modal, :root.jar-ios-native .modal {
+   max-height:calc(100dvh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px) - 8px)!important;
+ }
+ :root.jar-ios-native .modal-body, :root.jar-ios-native .wizard-modal .modal-body {
+   min-height:0; overflow-y:auto; -webkit-overflow-scrolling:touch;
+ }
+ :root.jar-ios-native .wizard-step, :root.jar-ios-native .form-grid {min-width:0;}
+ :root.jar-ios-native .wizard-footer {padding-bottom:calc(12px + env(safe-area-inset-bottom, 0px))!important;}
+}

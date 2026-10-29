@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<script src="../ios/native-fixes.js"></script>
+<link rel="stylesheet" href="../ios/native-fixes.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover">
+  <title>JustAReminder Family</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+:root{--deep:#345b68;--accent:#467b80;--cream:#fffaf3;--mint:#e7f4ed;--peach:#fff0e6;--blue:#e5f2f8;--lilac:#f1eafa;--text:#394c54;--muted:#6b7776;--border:#eee6d9;--danger:#b64c49}
+*{box-sizing:border-box}
+body{margin:0;font-family:'Trebuchet MS',Verdana,Arial,sans-serif;background:radial-gradient(circle at 6% 10%,#ffe8dc 0%,transparent 35%),radial-gradient(circle at 90% 18%,#e4f3e9 0%,transparent 43%),var(--cream);color:var(--text);min-height:100vh}
+button,input,select{font:inherit}button{cursor:pointer}button:focus-visible,input:focus-visible,select:focus-visible,a:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+.wrap{min-height:100vh;display:grid;place-items:center;padding:24px 18px}
+.card{width:min(740px,100%);background:#fffdf8;border:1px solid var(--border);border-radius:32px;padding:clamp(24px,5vw,46px);box-shadow:0 18px 50px #365b6830}
+.brand{display:flex;align-items:center;gap:12px;margin-bottom:30px;flex-wrap:wrap}
+.logo{width:47px;height:47px;flex:0 0 47px;border-radius:15px;display:grid;place-items:center;background:#dceddf;color:#477a6b;font-weight:900;font-size:25px;transform:rotate(-7deg)}
+.brand strong{color:var(--deep);font-size:23px;letter-spacing:-.7px;overflow-wrap:anywhere}
+h1{font-size:clamp(27px,4vw,39px);line-height:1.2;margin:0 0 11px;color:var(--deep);letter-spacing:-1.4px}
+p{color:var(--muted);line-height:1.65}
+.login{margin-top:23px;padding-top:23px;border-top:1px solid var(--border)}
+.fields{display:grid;grid-template-columns:1fr 1fr;gap:15px}
+label{display:block;font-size:13px;font-weight:800;color:#486760;margin-bottom:7px}
+input,select{background:#fffefa;width:100%;border:1px solid #dedfd7;border-radius:14px;padding:13px 14px;color:var(--text);outline:none;min-height:47px}
+input:focus,select:focus{border-color:#467b80}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+button,a{display:inline-flex;align-items:center;justify-content:center;min-height:47px;padding:0 19px;border-radius:999px;text-decoration:none;font-weight:800;border:0}
+.primary{background:#477d80;color:white;box-shadow:0 5px 0 #dae9df}.primary:hover{background:#35696d}
+.secondary{background:#e7f4ed;color:#375e60}
+.message{margin-top:15px;padding:12px 14px;border-radius:14px;font-size:13px;display:none}.message.error{display:block;background:#fff0ed;color:var(--danger)}.message.ok{display:block;background:#e7f4ed;color:#377763}
+.note{margin-top:21px;padding:15px 16px;border-radius:17px;background:#f2f6ed;font-size:13px;color:#66766d;line-height:1.55}
+.jar-language{margin-left:auto;display:flex;align-items:center;gap:8px}.jar-language label{margin:0;white-space:nowrap}.jar-language select{width:auto;max-width:185px;min-height:40px;padding:7px 11px;background:white}
+.jar-links{margin-top:23px;display:flex;gap:10px;flex-wrap:wrap}.jar-links a{min-height:38px;padding:8px 13px;font-size:13px;color:#416e71;background:#e7f2ed}
+@media(max-width:650px){.wrap{padding:14px}.card{padding:23px 18px;border-radius:25px}.fields{grid-template-columns:1fr}.brand{gap:10px}.brand strong{font-size:20px}.jar-language{width:100%;margin-left:0;justify-content:space-between}.jar-language select{flex:1;max-width:220px}}
+</style>
+<meta name="theme-color" content="#467b80">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="apple-touch-icon" sizes="180x180" href="./family-icon-180.png">
+</head>
+<body>
+  <div class="wrap">
+    <main class="card">
+      <div class="brand">
+        <div class="logo">✓</div>
+        <strong>JustAReminder Family</strong>
+        <div class="jar-language"><label for="jarLanguage">Taal</label><select id="jarLanguage" onchange="setFamilyLoginLanguage(this.value)"></select></div>
+      </div>
+
+      <h1>Samen onthouden. Samen afronden.</h1>
+      <p>Log in met hetzelfde JustAReminder-account dat je al gebruikt. Daarna opent je Family-dashboard.</p>
+
+      <section class="login">
+        <form id="loginForm">
+          <div class="fields">
+            <div>
+              <label for="email">E-mailadres</label>
+              <input id="email" type="email" autocomplete="email" required>
+            </div>
+            <div>
+              <label for="password">Wachtwoord</label>
+              <input id="password" type="password" autocomplete="current-password" required>
+            </div>
+          </div>
+
+          <div class="actions">
+            <button class="primary" type="submit" id="loginButton">Inloggen</button>
+          </div>
+
+          <div id="message" class="message"></div>
+        </form>
+      </section>
+
+      <div class="note">
+        Je Personal- en Family-app gebruiken dezelfde Supabase-gebruikers. Je hoeft dus geen nieuw account aan te maken.
+      </div>
+      <div class="jar-links"><a href="../index.html">JustAReminder startpagina</a></div>
+    </main>
+  </div>
+
+<script>
+const SUPABASE_URL = "https://fqupzovqwzaqkatcfbka.supabase.co";
+const SUPABASE_KEY = "sb_publishable_ahp4b1jbybZmcQDDkkdNrg_IvbVXZsY";
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+const FAMILY_LOGIN_TRANSLATIONS = {"nl":{"native":"Nederlands","email":"E-mailadres","password":"Wachtwoord","loginButton":"Inloggen","loginSubtitle":"Vul je gegevens in om verder te gaan.","loginTitle":"Inloggen"},"en":{"native":"English","email":"Email address","password":"Password","loginButton":"Log in","loginSubtitle":"Enter your details to continue.","loginTitle":"Log in"},"bg":{"native":"Български","email":"Имейл адрес","password":"Парола","loginButton":"Вход","loginSubtitle":"Въведете данните си.","loginTitle":"Вход"},"hr":{"native":"Hrvatski","email":"E-adresa","password":"Lozinka","loginButton":"Prijava","loginSubtitle":"Unesite svoje podatke.","loginTitle":"Prijava"},"cs":{"native":"Čeština","email":"E-mailová adresa","password":"Heslo","loginButton":"Přihlásit se","loginSubtitle":"Zadejte své údaje.","loginTitle":"Přihlásit se"},"da":{"native":"Dansk","email":"E-mailadresse","password":"Adgangskode","loginButton":"Log ind","loginSubtitle":"Indtast dine oplysninger.","loginTitle":"Log ind"},"et":{"native":"Eesti","email":"E-posti aadress","password":"Parool","loginButton":"Logi sisse","loginSubtitle":"Sisesta oma andmed.","loginTitle":"Logi sisse"},"fi":{"native":"Suomi","email":"Sähköpostiosoite","password":"Salasana","loginButton":"Kirjaudu","loginSubtitle":"Syötä tietosi.","loginTitle":"Kirjaudu sisään"},"fr":{"native":"Français","email":"Adresse e-mail","password":"Mot de passe","loginButton":"Se connecter","loginSubtitle":"Saisissez vos informations.","loginTitle":"Se connecter"},"de":{"native":"Deutsch","email":"E-Mail-Adresse","password":"Passwort","loginButton":"Anmelden","loginSubtitle":"Geben Sie Ihre Daten ein.","loginTitle":"Anmelden"},"el":{"native":"Ελληνικά","email":"Διεύθυνση email","password":"Κωδικός πρόσβασης","loginButton":"Σύνδεση","loginSubtitle":"Εισάγετε τα στοιχεία σας.","loginTitle":"Σύνδεση"},"hu":{"native":"Magyar","email":"E-mail-cím","password":"Jelszó","loginButton":"Bejelentkezés","loginSubtitle":"Add meg az adataidat.","loginTitle":"Bejelentkezés"},"ga":{"native":"Gaeilge","email":"Seoladh ríomhphoist","password":"Pasfhocal","loginButton":"Logáil isteach","loginSubtitle":"Cuir isteach do chuid sonraí.","loginTitle":"Logáil isteach"},"it":{"native":"Italiano","email":"Indirizzo email","password":"Password","loginButton":"Accedi","loginSubtitle":"Inserisci i tuoi dati.","loginTitle":"Accedi"},"lv":{"native":"Latviešu","email":"E-pasta adrese","password":"Parole","loginButton":"Pieslēgties","loginSubtitle":"Ievadiet savus datus.","loginTitle":"Pieslēgties"},"lt":{"native":"Lietuvių","email":"El. pašto adresas","password":"Slaptažodis","loginButton":"Prisijungti","loginSubtitle":"Įveskite savo duomenis.","loginTitle":"Prisijungti"},"mt":{"native":"Malti","email":"Indirizz elettroniku","password":"Password","loginButton":"Idħol","loginSubtitle":"Daħħal id-dettalji tiegħek.","loginTitle":"Idħol"},"pl":{"native":"Polski","email":"Adres e-mail","password":"Hasło","loginButton":"Zaloguj się","loginSubtitle":"Wprowadź swoje dane.","loginTitle":"Zaloguj się"},"pt":{"native":"Português","email":"Endereço de e-mail","password":"Palavra-passe","loginButton":"Iniciar sessão","loginSubtitle":"Introduza os seus dados.","loginTitle":"Iniciar sessão"},"ro":{"native":"Română","email":"Adresă de e-mail","password":"Parolă","loginButton":"Autentificare","loginSubtitle":"Introdu datele tale.","loginTitle":"Autentificare"},"sk":{"native":"Slovenčina","email":"E-mailová adresa","password":"Heslo","loginButton":"Prihlásiť sa","loginSubtitle":"Zadajte svoje údaje.","loginTitle":"Prihlásiť sa"},"sl":{"native":"Slovenščina","email":"E-poštni naslov","password":"Geslo","loginButton":"Prijava","loginSubtitle":"Vnesite svoje podatke.","loginTitle":"Prijava"},"es":{"native":"Español","email":"Correo electrónico","password":"Contraseña","loginButton":"Iniciar sesión","loginSubtitle":"Introduce tus datos.","loginTitle":"Iniciar sesión"},"sv":{"native":"Svenska","email":"E-postadress","password":"Lösenord","loginButton":"Logga in","loginSubtitle":"Fyll i dina uppgifter.","loginTitle":"Logga in"}};
+function setFamilyLoginLanguage(code){
+  const lang=FAMILY_LOGIN_TRANSLATIONS[code] ? code : 'nl';
+  localStorage.setItem('jar_language',lang);
+  const data=FAMILY_LOGIN_TRANSLATIONS[lang];
+  document.documentElement.lang=lang;
+  const label=document.querySelector('.jar-language label');
+  if(label)label.textContent=FAMILY_LOGIN_TRANSLATIONS[lang]?.loginTitle ? ({nl:'Taal',en:'Language'}[lang] || 'Language') : 'Language';
+  document.querySelector('label[for="email"]').textContent=data.email;
+  document.querySelector('label[for="password"]').textContent=data.password;
+  document.querySelector('button#loginButton').textContent=data.loginButton;
+  document.querySelector('.card>p').textContent=data.loginSubtitle;
+  document.getElementById('jarLanguage').value=lang;
+}
+function initFamilyLoginLanguages(){
+  const picker=document.getElementById('jarLanguage');
+  picker.innerHTML=Object.entries(FAMILY_LOGIN_TRANSLATIONS).map(([k,d])=>'<option value="'+k+'">'+d.native+'</option>').join('');
+  setFamilyLoginLanguage(localStorage.getItem('jar_language')||'nl');
+}
+initFamilyLoginLanguages();
+const loginForm = document.getElementById("loginForm");
+const loginButton = document.getElementById("loginButton");
+const message = document.getElementById("message");
+
+document.addEventListener("DOMContentLoaded", async () => {
+  const params = new URLSearchParams(location.search);
+  const invite = params.get("invite");
+
+  const { data: { session } } = await supabaseClient.auth.getSession();
+
+  if (session) {
+    const target = invite
+      ? `family-dashboard.html?invite=${encodeURIComponent(invite)}`
+      : "family-dashboard.html";
+
+    location.replace(target);
+  }
+});
+
+loginForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+
+  loginButton.disabled = true;
+  loginButton.textContent = "Inloggen...";
+  showMessage("");
+
+  const email = document.getElementById("email").value.trim();
+  const password = document.getElementById("password").value;
+
+  const { error } = await supabaseClient.auth.signInWithPassword({
+    email,
+    password
+  });
+
+  if (error) {
+    console.error(error);
+    showMessage("Inloggen is niet gelukt. Controleer je e-mailadres en wachtwoord.", "error");
+    loginButton.disabled = false;
+    loginButton.textContent = FAMILY_LOGIN_TRANSLATIONS[document.getElementById("jarLanguage")?.value||"nl"]?.loginButton || "Inloggen";
+    return;
+  }
+
+  try {
+    const chosenLanguage = document.getElementById("jarLanguage")?.value || "nl";
+    const { data: authData } = await supabaseClient.auth.getUser();
+    if(authData?.user?.id){
+      const { error: languageError } = await supabaseClient.from("profiles")
+        .update({ language: chosenLanguage }).eq("id", authData.user.id);
+      if(languageError) console.warn("Family taalvoorkeur kon niet in profiel worden opgeslagen.");
+    }
+  } catch(e) { console.warn("Family profiel-taalsynchronisatie overgeslagen",e); }
+  showMessage("Ingelogd. Dashboard wordt geopend...", "ok");
+
+  const params = new URLSearchParams(location.search);
+  const invite = params.get("invite");
+
+  const target = invite
+    ? `family-dashboard.html?invite=${encodeURIComponent(invite)}`
+    : "family-dashboard.html";
+
+  location.replace(target);
+});
+
+function showMessage(text, type = "") {
+  message.textContent = text;
+  message.className = "message" + (type ? " " + type : "");
+}
+</script>
+</body>
+</html>
