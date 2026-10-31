@@ -3,7 +3,7 @@
 # TestFlight intern testen na Apple-verwerking; NIET openbaar publiceren.
 workflows:
   ios-ipa-controle:
-    name: JustAReminder - v1.5 iOS UI-herstel (alleen TestFlight) (niet openbaar)
+    name: JustAReminder - v1.5 iOS UI-herstel + layoutfix (alleen TestFlight) (niet openbaar)
     max_build_duration: 90
     instance_type: mac_mini_m2
     integrations:
@@ -15,9 +15,13 @@ workflows:
         distribution_type: app_store
         bundle_identifier: eu.justareminder.app
     scripts:
-      - name: Installeer afhankelijkheden en controleer bestanden
+      - name: Installeer layoutfix, afhankelijkheden en controleer bestanden
         script: |
           set -eu
+          # De drie patchbestanden staan in de GitHub-hoofdmap.
+          # Maak eerst de CSS definitief voor deze build en stop bij fouten.
+          node installeer-ios-layoutfix.mjs .
+          node test-ios-layoutfix.mjs .
           npm install
           npm run check
           node scripts/check-github.mjs
