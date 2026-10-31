@@ -1,0 +1,14 @@
+
+> justareminder-mobile@1.5.0-ios-interface-herstel audit:release
+> node scripts/audit-release.mjs
+
+
+⛔ JUSTAREMINDER IS NOG NIET GEREED VOOR BETALENDE IPHONE-KLANTEN.
+ - Apple StoreKit-aankopen + server-side transactiecontrole ontbreken.
+ - Native iOS-pushplugin is niet aangesloten.
+ - Beveiligde Apple-transactieverificatie-Edge Function ontbreekt.
+ - Apple server-notificaties V2 handler ontbreekt.
+ - APNs apparaatregistratie ontbreekt.
+ - Gecontroleerde test-/privacy-/reviewondertekening ontbreekt (zie docs/KLANTLANCERING.md).
+
+Dit commando stopt met code 1; TestFlight-bouw blijft afzonderlijk mogelijk.

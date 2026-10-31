@@ -1,0 +1,48 @@
+JUSTAREMINDER iOS – VOLLEDIGE UI-HERSTELSET v1.5
+Datum: 31 oktober 2026
+
+Dit is ÉÉN volledig project, gebaseerd op het eerder ontvangen volledige v1.4-project.
+De meest recente upload 'JustAReminder-iOS-v1.1-alleen-wijzigingen (1).zip' is een
+oudere, ONVOLLEDIGE wijzigingenmap; die is niet teruggezet over de latere broncode.
+
+STATUS
+- De code is lokaal gecontroleerd met Node en statische iPhone-schermtests.
+- Er is NIET op een echt iPhone-apparaat gebouwd of getest.
+- Er is niets naar GitHub, Codemagic, App Store Connect of Supabase gestuurd.
+- Nieuwe TestFlight-build NIET uitgevoerd.
+- Geen live betalingen ingeschakeld.
+- Apple-transactieverificatie, aankoopherstel en echte APNs-meldingen blijven
+  afzonderlijke release-blokkades. NIET openbaar maken voor klanten.
+
+MAPSTRUCTUUR
+www/       Alle webschermen inclusief gewijzigde native fixes en navigatie.
+scripts/   Broncodechecks, iOS-tests en Codemagic-assets.
+resources/ App-pictogram.
+ios-source/ Overige native broncode.
+package.json, capacitor.config.json, codemagic.yaml, docs/
+
+BELANGRIJKSTE VERBETERINGEN
+1. Bovenkant van iPhone-schermen compacter; dubbele safe-area en lege balken.
+2. Zoekbalk alleen in passende schermen; niet-werkende notificatiebalk verborgen.
+3. Donkere thema's krijgen automatisch leesbare tekst als anders contrast ontbreekt.
+4. Pop-ups en invoervensters scrollen apart, met footer die zichtbaar blijft.
+5. Kleuren-/instellingentabs passen ook op smalle schermen.
+6. iOS 'Vorige' sluit eerst het open venster of gaat terug naar het vorige tabblad.
+7. Naar menu betekent niet uitloggen.
+8. Laatste workspace en tab wordt opgeslagen en hersteld.
+9. Wisselen van ingelogde gebruiker wist de oude schermkeuze van de vorige gebruiker.
+10. Geen wijziging aan betaalrechten, backend, Mollie of klantgegevens.
+
+VOLGENDE ACTIE ALS JE ZELF EEN NIEUWE TESTFLIGHT WILT MAKEN
+1. Bewaar eerst een reservekopie van je huidige GitHub-repository.
+2. Controleer deze nieuwe map lokaal. De root bevat codemagic.yaml en package.json.
+3. Als je die versie wilt testen: upload uitsluitend de inhoud van deze projectmap
+   naar de root van de bestaande GitHub-repository (houd dezelfde mappenstructuur).
+4. Start pas na jouw eigen akkoord de iOS-TestFlight-workflow in Codemagic.
+5. Test de herstelpunten in TestFlight op een echte iPhone.
+
+CLI CONTROLE
+  npm run check:all
+
+LET OP: 'npm run audit:release' zal en MOET momenteel een foutmelding geven,
+zolang StoreKit-serververificatie/APNs-/releasetests ontbreken.

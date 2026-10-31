@@ -4,7 +4,7 @@
   'use strict';
   window.JAR_MOBILE_TEST_BUILD = true;
   window.jarIsNativeWrapper = function () {
-    return (location.hostname === 'localhost' || location.hostname === '127.0.0.1') || Boolean(window.Capacitor && typeof window.Capacitor.isNativePlatform === 'function' && window.Capacitor.isNativePlatform());
+    return Boolean(window.Capacitor && typeof window.Capacitor.isNativePlatform === 'function' && window.Capacitor.isNativePlatform());
   };
   window.jarBuildFamilyInviteUrl = function (token) {
     var path = 'family-dashboard.html?invite=' + encodeURIComponent(String(token));

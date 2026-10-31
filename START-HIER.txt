@@ -1,0 +1,27 @@
+JUSTAREMINDER iOS v1.3 — RELEASEVOORBEREIDING (29-10-2026)
+
+STATUS: NIET GEREED VOOR BETALENDE KLANTEN.
+
+Wat WEL gedaan is:
+- Automatische opstart controleert Supabase-sessie tegen de server.
+- iPhone toont bij internetuitval een zichtbare waarschuwing.
+- Nauwkeuriger onderscheid tussen echte native app en browserpreview.
+- Abonnementen worden niet ten onrechte als actief of betaalbaar voorgesteld.
+- Wachtwoordhersteltekst verduidelijkt de browserstap.
+- Acht Apple-product-ID's zijn in de bestaande catalogus behouden.
+- HTML/JS- en veiligheidscontrole toegevoegd.
+- TestFlight buildnummer 4 voorbereid; er is GEEN build gestart.
+
+Wat NIET werkend is:
+- StoreKit-aankopen inclusief Supabase-transactieverificatie en herstellen.
+- Native APNs-push en serverherinneringen.
+- Apple review, Supabase RLS, daadwerkelijke iPhone-tests, privacylabels.
+
+Kies voor een bestaande GitHub-repository de ZIP met ALLEEN GEWIJZIGDE BESTANDEN.
+Pak uit en plaats de inhoud met behoud van de mapstructuur in de ROOT van
+JustAReminder-ios. NIET eerst mappen of het GitHub-project verwijderen.
+
+GEEN NIEUWE CODEMAGIC-BUILD STARTEN totdat de ontbrekende systemen zijn
+geïmplementeerd en getest. Dit pakket bevat uitsluitend voorbereidend werk.
+
+Zie docs/KLANTLANCERING.md voor de checklist.

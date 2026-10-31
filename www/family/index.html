@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="nl">
 <head>
+<script src="../ios/native-session.js"></script>
+<script src="../ios/native-navigation.js"></script>
 <script src="../ios/native-fixes.js"></script>
 <link rel="stylesheet" href="../ios/native-fixes.css">
   <meta charset="UTF-8">
@@ -63,6 +65,7 @@ button,a{display:inline-flex;align-items:center;justify-content:center;min-heigh
             </div>
           </div>
 
+          <label class="jar-login-remember"><input type="checkbox" id="jarRememberLogin" checked> Ingelogd blijven</label>
           <div class="actions">
             <button class="primary" type="submit" id="loginButton">Inloggen</button>
           </div>
@@ -74,14 +77,14 @@ button,a{display:inline-flex;align-items:center;justify-content:center;min-heigh
       <div class="note">
         Je Personal- en Family-app gebruiken dezelfde Supabase-gebruikers. Je hoeft dus geen nieuw account aan te maken.
       </div>
-      <div class="jar-links"><a href="../index.html">JustAReminder startpagina</a></div>
+      <div class="jar-links"><a href="../index.html?menu=1">← Terug naar menu</a></div>
     </main>
   </div>
 
 <script>
 const SUPABASE_URL = "https://fqupzovqwzaqkatcfbka.supabase.co";
 const SUPABASE_KEY = "sb_publishable_ahp4b1jbybZmcQDDkkdNrg_IvbVXZsY";
-const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY,window.JAR_iOS_session?.authOptions()||{});
 
 const FAMILY_LOGIN_TRANSLATIONS = {"nl":{"native":"Nederlands","email":"E-mailadres","password":"Wachtwoord","loginButton":"Inloggen","loginSubtitle":"Vul je gegevens in om verder te gaan.","loginTitle":"Inloggen"},"en":{"native":"English","email":"Email address","password":"Password","loginButton":"Log in","loginSubtitle":"Enter your details to continue.","loginTitle":"Log in"},"bg":{"native":"Български","email":"Имейл адрес","password":"Парола","loginButton":"Вход","loginSubtitle":"Въведете данните си.","loginTitle":"Вход"},"hr":{"native":"Hrvatski","email":"E-adresa","password":"Lozinka","loginButton":"Prijava","loginSubtitle":"Unesite svoje podatke.","loginTitle":"Prijava"},"cs":{"native":"Čeština","email":"E-mailová adresa","password":"Heslo","loginButton":"Přihlásit se","loginSubtitle":"Zadejte své údaje.","loginTitle":"Přihlásit se"},"da":{"native":"Dansk","email":"E-mailadresse","password":"Adgangskode","loginButton":"Log ind","loginSubtitle":"Indtast dine oplysninger.","loginTitle":"Log ind"},"et":{"native":"Eesti","email":"E-posti aadress","password":"Parool","loginButton":"Logi sisse","loginSubtitle":"Sisesta oma andmed.","loginTitle":"Logi sisse"},"fi":{"native":"Suomi","email":"Sähköpostiosoite","password":"Salasana","loginButton":"Kirjaudu","loginSubtitle":"Syötä tietosi.","loginTitle":"Kirjaudu sisään"},"fr":{"native":"Français","email":"Adresse e-mail","password":"Mot de passe","loginButton":"Se connecter","loginSubtitle":"Saisissez vos informations.","loginTitle":"Se connecter"},"de":{"native":"Deutsch","email":"E-Mail-Adresse","password":"Passwort","loginButton":"Anmelden","loginSubtitle":"Geben Sie Ihre Daten ein.","loginTitle":"Anmelden"},"el":{"native":"Ελληνικά","email":"Διεύθυνση email","password":"Κωδικός πρόσβασης","loginButton":"Σύνδεση","loginSubtitle":"Εισάγετε τα στοιχεία σας.","loginTitle":"Σύνδεση"},"hu":{"native":"Magyar","email":"E-mail-cím","password":"Jelszó","loginButton":"Bejelentkezés","loginSubtitle":"Add meg az adataidat.","loginTitle":"Bejelentkezés"},"ga":{"native":"Gaeilge","email":"Seoladh ríomhphoist","password":"Pasfhocal","loginButton":"Logáil isteach","loginSubtitle":"Cuir isteach do chuid sonraí.","loginTitle":"Logáil isteach"},"it":{"native":"Italiano","email":"Indirizzo email","password":"Password","loginButton":"Accedi","loginSubtitle":"Inserisci i tuoi dati.","loginTitle":"Accedi"},"lv":{"native":"Latviešu","email":"E-pasta adrese","password":"Parole","loginButton":"Pieslēgties","loginSubtitle":"Ievadiet savus datus.","loginTitle":"Pieslēgties"},"lt":{"native":"Lietuvių","email":"El. pašto adresas","password":"Slaptažodis","loginButton":"Prisijungti","loginSubtitle":"Įveskite savo duomenis.","loginTitle":"Prisijungti"},"mt":{"native":"Malti","email":"Indirizz elettroniku","password":"Password","loginButton":"Idħol","loginSubtitle":"Daħħal id-dettalji tiegħek.","loginTitle":"Idħol"},"pl":{"native":"Polski","email":"Adres e-mail","password":"Hasło","loginButton":"Zaloguj się","loginSubtitle":"Wprowadź swoje dane.","loginTitle":"Zaloguj się"},"pt":{"native":"Português","email":"Endereço de e-mail","password":"Palavra-passe","loginButton":"Iniciar sessão","loginSubtitle":"Introduza os seus dados.","loginTitle":"Iniciar sessão"},"ro":{"native":"Română","email":"Adresă de e-mail","password":"Parolă","loginButton":"Autentificare","loginSubtitle":"Introdu datele tale.","loginTitle":"Autentificare"},"sk":{"native":"Slovenčina","email":"E-mailová adresa","password":"Heslo","loginButton":"Prihlásiť sa","loginSubtitle":"Zadajte svoje údaje.","loginTitle":"Prihlásiť sa"},"sl":{"native":"Slovenščina","email":"E-poštni naslov","password":"Geslo","loginButton":"Prijava","loginSubtitle":"Vnesite svoje podatke.","loginTitle":"Prijava"},"es":{"native":"Español","email":"Correo electrónico","password":"Contraseña","loginButton":"Iniciar sesión","loginSubtitle":"Introduce tus datos.","loginTitle":"Iniciar sesión"},"sv":{"native":"Svenska","email":"E-postadress","password":"Lösenord","loginButton":"Logga in","loginSubtitle":"Fyll i dina uppgifter.","loginTitle":"Logga in"}};
 function setFamilyLoginLanguage(code){
@@ -104,6 +107,8 @@ function initFamilyLoginLanguages(){
 }
 initFamilyLoginLanguages();
 const loginForm = document.getElementById("loginForm");
+const jarRemember=document.getElementById('jarRememberLogin');
+if(window.JAR_iOS_session?.native && jarRemember)jarRemember.checked=window.JAR_iOS_session.remember();
 const loginButton = document.getElementById("loginButton");
 const message = document.getElementById("message");
 
@@ -118,6 +123,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       ? `family-dashboard.html?invite=${encodeURIComponent(invite)}`
       : "family-dashboard.html";
 
+    window.JAR_iOS_session?.bindUser(session?.user?.id);
     location.replace(target);
   }
 });
@@ -132,6 +138,7 @@ loginForm.addEventListener("submit", async (event) => {
   const email = document.getElementById("email").value.trim();
   const password = document.getElementById("password").value;
 
+  window.JAR_iOS_session?.setRemember(jarRemember?.checked!==false);
   const { error } = await supabaseClient.auth.signInWithPassword({
     email,
     password
@@ -154,6 +161,9 @@ loginForm.addEventListener("submit", async (event) => {
       if(languageError) console.warn("Family taalvoorkeur kon niet in profiel worden opgeslagen.");
     }
   } catch(e) { console.warn("Family profiel-taalsynchronisatie overgeslagen",e); }
+  const {data:active} = await supabaseClient.auth.getUser();
+  window.JAR_iOS_session?.bindUser(active?.user?.id);
+  window.JAR_iOS_session?.mark('family');
   showMessage("Ingelogd. Dashboard wordt geopend...", "ok");
 
   const params = new URLSearchParams(location.search);

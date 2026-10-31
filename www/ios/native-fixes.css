@@ -33,3 +33,222 @@
  :root.jar-ios-native .wizard-step, :root.jar-ios-native .form-grid {min-width:0;}
  :root.jar-ios-native .wizard-footer {padding-bottom:calc(12px + env(safe-area-inset-bottom, 0px))!important;}
 }
+
+/* v1.2: prevent iOS status bar/Dynamic Island overlaps and scroll traps.
+ * Override only inside real Capacitor, not web/PWA. */
+:root.jar-ios-native { --jar-visible-height: 100dvh; --jar-native-top: max(env(safe-area-inset-top,0px), 50px); }
+:root.jar-ios-native body { box-sizing:border-box; padding-top: var(--jar-native-top)!important; }
+:root.jar-ios-native .jar-login-remember { display:flex;align-items:center;gap:10px;min-height:44px;cursor:pointer;font-weight:700;color:#345b68;font-size:14px; }
+:root.jar-ios-native .jar-login-remember input {width:20px;height:20px;accent-color:#467b80;flex-shrink:0;}
+:root.jar-ios-native .jar-login-menu {text-align:center;margin:18px 0 6px;font-weight:800;}
+:root.jar-ios-native .jar-return-menu {padding:13px 15px;min-height:44px;border:1px solid #dbe7df;border-radius:13px;background:#e9f3ed;color:#345b68;text-align:center;font-weight:750;width:100%;cursor:pointer;}
+:root.jar-ios-native .jar-remember-setting {padding:15px;background:#e9f3ed;border-radius:16px;border:1px solid #dbe7df;display:flex;flex-direction:column;gap:8px;}
+:root.jar-ios-native .jar-remember-setting label {display:flex;align-items:center;gap:9px;cursor:pointer;font-weight:750;font-size:14px;}
+:root.jar-ios-native .jar-remember-setting input {width:20px;height:20px;accent-color:#467b80;}
+:root.jar-ios-native .jar-remember-setting small {font-size:12px;line-height:1.4;color:#576e68;}
+@media(max-width:900px) {
+  :root.jar-ios-native .topbar, :root.jar-ios-native .mobile-header, :root.jar-ios-native .auth-nav, :root.jar-ios-native header.top {
+    padding-top:10px!important; min-height:56px!important;
+  }
+  :root.jar-ios-native .modal-backdrop.show {align-items:flex-end!important; padding:8px 6px max(env(safe-area-inset-bottom,0px),8px)!important;}
+  :root.jar-ios-native .modal-backdrop.show>.modal, :root.jar-ios-native .modal-backdrop.show>.wizard-modal {
+    max-height:calc(var(--jar-visible-height,100dvh) - var(--jar-native-top) - 16px)!important;
+    max-width:100%!important; width:100%!important; margin:0!important;
+  }
+  :root.jar-ios-native .wizard-modal {display:flex!important;flex-direction:column!important;overflow:hidden!important;min-height:0!important;}
+  :root.jar-ios-native .wizard-modal .modal-header, :root.jar-ios-native .wizard-modal .wizard-progress, :root.jar-ios-native .wizard-modal .wizard-footer {flex:0 0 auto;}
+  :root.jar-ios-native .wizard-modal .modal-body {flex:1 1 auto!important;min-height:0!important;overflow-y:auto!important;overscroll-behavior:contain;}
+  :root.jar-ios-native .wizard-modal .wizard-footer {position:relative!important;bottom:auto!important;padding-bottom:12px!important;}
+  :root.jar-ios-native .wizard-modal input:focus, :root.jar-ios-native .wizard-modal textarea:focus {scroll-margin-bottom:14px;}
+  :root.jar-ios-native .jar26-bottom {bottom:0!important;padding-bottom:max(env(safe-area-inset-bottom,0px),12px)!important;}
+  :root.jar-ios-native .jar-login-menu a {display:inline-flex;min-height:44px;align-items:center;}
+}
+
+/* Avoid a misleading remember-me control on browser pages, where the iOS choice is not active. */
+:root:not(.jar-ios-native) .jar-login-remember {display:none!important;}
+
+/* iOS releasevoorbereiding — duidelijk, toegankelijk offline-signaal. */
+:root.jar-ios-native #jar-ios-offline-banner {
+ position:fixed;z-index:2147483000;left:12px;right:12px;
+ top:calc(env(safe-area-inset-top, 0px) + 8px);
+ padding:12px 14px;border-radius:14px;background:#fff1d5;
+ border:1px solid #c89338;color:#503700;
+ font:600 14px/1.45 system-ui,-apple-system,sans-serif;
+ box-shadow:0 4px 15px #0002;text-align:center;
+}
+:root.jar-ios-native #jar-ios-offline-banner[hidden]{display:none!important;}
+
+/* v1.4 iOS polish — compact header spacing, reliable modals and visible back buttons. */
+:root.jar-ios-native body {
+  padding-top: 0 !important;
+}
+:root.jar-ios-native .jar-ios-back-button {
+  appearance:none; -webkit-appearance:none;
+  border:1px solid #d8e6de; background:#edf5f1; color:#345b68;
+  min-height:40px; padding:8px 14px; border-radius:12px;
+  font:700 14px/1 system-ui,-apple-system,sans-serif; cursor:pointer;
+}
+@media (max-width: 900px) {
+  :root.jar-ios-native .mobile-header {
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 60 !important;
+    padding-top: max(env(safe-area-inset-top, 0px), 8px) !important;
+    min-height: calc(60px + max(env(safe-area-inset-top, 0px), 8px)) !important;
+    height: auto !important;
+    align-items: end !important;
+  }
+  :root.jar-ios-native .mobile-header .jar-ios-back-button {
+    order:0; margin-right:auto; margin-bottom:8px;
+  }
+  :root.jar-ios-native .topbar,
+  :root.jar-ios-native .auth-nav,
+  :root.jar-ios-native header.top {
+    padding-top: 8px !important;
+    min-height: auto !important;
+  }
+  :root.jar-ios-native .topbar { 
+    margin-top: 0 !important;
+    padding-block: 8px !important;
+    gap: 10px !important;
+  }
+  :root.jar-ios-native .topbar .notification-control,
+  :root.jar-ios-native .topbar .notification-button { display:none !important; }
+  :root.jar-ios-native .main,
+  :root.jar-ios-native .content { margin-top:0 !important; }
+  :root.jar-ios-native .content { padding-top:12px !important; }
+  :root.jar-ios-native .welcome,
+  :root.jar-ios-native .jar-prod-page-head,
+  :root.jar-ios-native .jar26-intro { margin-top:0 !important; }
+  :root.jar-ios-native .welcome { min-height:auto !important; margin-bottom:18px !important; }
+
+  :root.jar-ios-native .modal-backdrop.show {
+    align-items:flex-end !important;
+    padding: 0 !important;
+  }
+  :root.jar-ios-native .modal-backdrop.show > .modal,
+  :root.jar-ios-native .modal-backdrop.show > .wizard-modal,
+  :root.jar-ios-native .modal-backdrop.show > .jar-settings-modal {
+    width:100% !important; max-width:100% !important; margin:0 !important;
+    border-radius:26px 26px 0 0 !important;
+    max-height: calc(var(--jar-visible-height, 100dvh) - 6px) !important;
+    display:flex !important; flex-direction:column !important; overflow:hidden !important;
+  }
+  :root.jar-ios-native .modal-header,
+  :root.jar-ios-native .wizard-modal .modal-header,
+  :root.jar-ios-native .wizard-progress,
+  :root.jar-ios-native .wizard-footer,
+  :root.jar-ios-native .modal-footer { flex: 0 0 auto !important; }
+  :root.jar-ios-native .modal-body,
+  :root.jar-ios-native .wizard-modal .modal-body,
+  :root.jar-ios-native .jar-settings-modal .modal-body {
+    flex:1 1 auto !important; min-height:0 !important; overflow-y:auto !important;
+    -webkit-overflow-scrolling:touch; overscroll-behavior:contain;
+  }
+  :root.jar-ios-native .wizard-footer,
+  :root.jar-ios-native .modal-footer {
+    position: sticky !important; bottom: 0 !important;
+    background: inherit !important;
+    padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px)) !important;
+    z-index: 2;
+  }
+
+  :root.jar-ios-native .jar-settings-tabs,
+  :root.jar-ios-native [role="tablist"] {
+    display:flex !important; flex-wrap:wrap !important; gap:10px !important;
+  }
+  :root.jar-ios-native .jar-settings-tab {
+    flex:1 1 calc(50% - 10px) !important;
+    min-width:135px !important;
+    width:auto !important;
+    white-space:normal !important;
+    text-align:center !important;
+    line-height:1.25 !important;
+    min-height:48px !important;
+    padding:12px 14px !important;
+  }
+  :root.jar-ios-native .jar-settings-hint { font-size:14px !important; line-height:1.45 !important; }
+}
+
+/* v1.5 — final native-only overrides for the supplied iPhone screenshots. */
+:root.jar-ios-native .jar-ios-back-button[hidden] { display:none!important; }
+:root.jar-ios-native .jar-ios-back-button {
+  flex:0 0 auto; display:inline-flex; justify-content:center; align-items:center;
+  min-width:68px; min-height:42px; padding:8px 12px;
+  border:1px solid #cbded4; border-radius:12px;
+  background:#eef5f1; color:#204a42; font:700 13px/1.25 system-ui,-apple-system,sans-serif;
+  -webkit-tap-highlight-color:transparent;
+}
+@media(max-width:850px){
+  :root.jar-ios-native, :root.jar-ios-native body { margin:0!important; padding-top:0!important; }
+  :root.jar-ios-native .mobile-header {
+    box-sizing:border-box!important;
+    padding: max(env(safe-area-inset-top,0px), 44px) 16px 10px!important;
+    min-height:calc(max(env(safe-area-inset-top,0px), 44px) + 58px)!important;
+    height:auto!important; position:relative!important; top:0!important;
+    display:flex!important; align-items:center!important; justify-content:space-between!important;
+  }
+  :root.jar-ios-native .mobile-header .mobile-brand { flex:1 1 auto; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  :root.jar-ios-native .mobile-header .mobile-menu-button { flex-shrink:0; order:2!important; margin-left:8px; }
+  :root.jar-ios-native #jar-ios-dashboard-back { order:0!important; margin-right:10px; }
+  :root.jar-ios-native .topbar {
+    height:auto!important; min-height:56px!important;
+    padding:6px 14px 10px!important; margin:0!important;
+    display:flex!important; align-items:center!important;
+    background:var(--prod-surface,#fffdf8)!important;
+  }
+  :root.jar-ios-native .topbar .search-box { flex:1 1 auto!important; width:100%!important; max-width:none!important; }
+  :root.jar-ios-native .topbar .search-box input { width:100%!important; min-width:0!important; height:44px!important; }
+  :root.jar-ios-native .topbar .user-area { display:none!important; }
+  :root.jar-ios-native body.jar-prod-todo-screen .topbar,
+  :root.jar-ios-native body.jar-prod-more-screen .topbar,
+  :root.jar-ios-native body.jar-prod-special .topbar,
+  :root.jar-ios-native body.jar-prod-list-screen .topbar { display:none!important; }
+  :root.jar-ios-native .content { padding-top:14px!important; }
+  :root.jar-ios-native .main { margin-top:0!important; }
+  :root.jar-ios-native .jar26-home, :root.jar-ios-native .jar-prod-fullpage { margin-top:0!important; }
+  :root.jar-ios-native .jar-settings-modal {
+    min-height:0!important; max-height:calc(100dvh - max(env(safe-area-inset-top,0px), 44px) - 8px)!important;
+    width:100%!important; display:flex!important; flex-direction:column!important;
+  }
+  :root.jar-ios-native .jar-settings-modal .jar-settings-intro,
+  :root.jar-ios-native .jar-settings-modal .jar-settings-tabs,
+  :root.jar-ios-native .jar-settings-modal .modal-header,
+  :root.jar-ios-native .jar-settings-modal .modal-footer { flex:0 0 auto!important; }
+  :root.jar-ios-native .jar-settings-content { min-height:0!important; flex:1 1 auto!important; overflow-y:auto!important; -webkit-overflow-scrolling:touch!important; }
+  :root.jar-ios-native .jar-settings-tabs { gap:8px!important; padding:10px 14px!important; }
+  :root.jar-ios-native .jar-settings-tabs .jar-settings-tab { min-width:0!important; width:auto!important; flex:1 1 calc(50% - 8px)!important; min-height:44px!important; white-space:normal!important; line-height:1.3!important; }
+  :root.jar-ios-native .modal-backdrop.show { padding:0!important; align-items:flex-end!important; }
+  :root.jar-ios-native .modal-backdrop.show > .modal {
+    width:100%!important; margin:0!important; border-radius:24px 24px 0 0!important;
+    max-height:calc(100dvh - max(env(safe-area-inset-top,0px), 44px) - 8px)!important;
+    overflow:hidden!important; display:flex!important; flex-direction:column!important;
+  }
+  :root.jar-ios-native .modal-backdrop.show > .modal .modal-body,
+  :root.jar-ios-native .modal-backdrop.show > .modal .jar-settings-content {
+    min-height:0!important; overflow-y:auto!important; flex:1 1 auto!important; -webkit-overflow-scrolling:touch!important;
+  }
+  :root.jar-ios-native .modal-backdrop.show .modal-footer,
+  :root.jar-ios-native .modal-backdrop.show .wizard-footer,
+  :root.jar-ios-native .modal-backdrop.show .jar-settings-footer {
+    flex:0 0 auto!important; position:relative!important;
+    padding-bottom:calc(12px + env(safe-area-inset-bottom,0px))!important;
+  }
+  :root.jar-ios-native .jar26-choose-sheet { max-height:calc(100dvh - 55px)!important; overflow-y:auto!important; }
+}
+/* Contrast protection for user-created dark themes: styles are scoped to native only. */
+:root.jar-ios-native.jar-ios-dark-contrast { --prod-text:#f3faf7!important; --jar-appearance-text:#f3faf7!important; --prod-muted:#b8cec7!important; --jar-appearance-muted:#b8cec7!important; }
+:root.jar-ios-native.jar-ios-dark-contrast .jar-prod-page-head h1,
+:root.jar-ios-native.jar-ios-dark-contrast .jar-prod-page-head p,
+:root.jar-ios-native.jar-ios-dark-contrast .jar-prod-more-grid button strong,
+:root.jar-ios-native.jar-ios-dark-contrast .jar-prod-more-grid button small,
+:root.jar-ios-native.jar-ios-dark-contrast .jar26-hero-grid h1,
+:root.jar-ios-native.jar-ios-dark-contrast .jar26-hero-grid p,
+:root.jar-ios-native.jar-ios-dark-contrast .jar-prod-todo-form,
+:root.jar-ios-native.jar-ios-dark-contrast .jar-prod-fullpage,
+:root.jar-ios-native.jar-ios-dark-contrast .jar-settings-modal { color:var(--prod-text,#f3faf7)!important; }
+:root.jar-ios-native .jar26-bottom { padding-bottom:max(8px, env(safe-area-inset-bottom,0px))!important; }
+
+/* Give standalone iOS screens their own status-bar clearance. */
+:root.jar-ios-native body:not(.jar-ios-dashboard-layout) { padding-top:max(env(safe-area-inset-top,0px), 44px)!important; }
+:root.jar-ios-native body.jar-ios-dashboard-layout { padding-top:0!important; }

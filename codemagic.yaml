@@ -1,8 +1,9 @@
+# NIET voor openbare lancering: controleer docs/KLANTLANCERING.md.
 # JustAReminder — ondertekende iOS-build met upload naar App Store Connect.
 # TestFlight intern testen na Apple-verwerking; NIET openbaar publiceren.
 workflows:
   ios-ipa-controle:
-    name: JustAReminder - v1.1 TestFlight verbeteringen (niet openbaar)
+    name: JustAReminder - v1.5 iOS UI-herstel (alleen TestFlight) (niet openbaar)
     max_build_duration: 90
     instance_type: mac_mini_m2
     integrations:
@@ -21,6 +22,13 @@ workflows:
           npm run check
           node scripts/check-github.mjs
           npm run check:iosfix
+          npm run check:session
+          npm run check:navigation
+          npm run audit:source
+          # Een openbare release is pas toegestaan na een echte Apple/Supabase/APNs-audit.
+          if [ "${JAR_RELEASE_CHANNEL:-testflight}" = "production" ]; then
+            npm run audit:release
+          fi
       - name: Genereer iOS-project met Capacitor 8 (SPM)
         script: |
           set -eu

@@ -1,9 +1,11 @@
 <!doctype html>
 <html lang="nl"><head>
+<script src="ios/native-session.js"></script>
+<script src="ios/native-navigation.js"></script>
 <script src="ios/native-fixes.js"></script>
 <link rel="stylesheet" href="ios/native-fixes.css">
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#fffaf3"><title>JustAReminder</title>
+<meta name="theme-color" content="#fffaf3"><title>JustAReminder</title><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link rel="icon" href="prive/prive-icon-192-v2.png">
 <style>
 :root{font-family:system-ui,-apple-system,'Segoe UI',Arial,sans-serif;color:#31454d;background:#fffaf3}
@@ -11,9 +13,31 @@
 main{width:min(100%,480px);padding:28px 2px}img{width:82px;height:82px;object-fit:contain}h1{font-size:2rem;margin:12px 0 7px;color:#345b68}p{line-height:1.55;color:#607477}.choice{display:block;text-decoration:none;color:#355861;background:white;border:1px solid #e2ece4;border-radius:18px;margin:14px 0;padding:18px 18px;box-shadow:0 6px 22px #42585c0e}.choice b{display:block;font-size:1.18rem;margin-bottom:5px}.choice span{font-size:.95rem;color:#647979}.choice:focus-visible{outline:3px solid #547e80;outline-offset:3px}.note{font-size:.85rem;color:#7f6661;border-top:1px solid #ecdfd1;padding-top:16px;margin-top:22px}
 </style></head><body><main>
 <img src="prive/prive-icon-192-v2.png" alt="JustAReminder pictogram">
-<h1>JustAReminder</h1><p>Wat wil je vandaag organiseren?</p>
-<a class="choice" href="prive/index.html"><b>Mijn Privé</b><span>Jouw taken, planning en herinneringen</span></a>
-<a class="choice" href="family/index.html"><b>Onze Family</b><span>Alles samen organiseren en verdelen</span></a>
-<a class="choice" href="ios/abonnementen.html"><b>Apple-abonnementen bekijken</b><span>Testscherm met alle 8 geregistreerde producten — zonder betalingen</span></a>
+<h1>JustAReminder</h1><p id="jarResumeStatus">Wat wil je vandaag organiseren?</p>
+<a class="choice" href="prive/index.html?switch=1"><b>Mijn Privé</b><span>Jouw taken, planning en herinneringen</span></a>
+<a class="choice" href="family/index.html?switch=1"><b>Onze Family</b><span>Alles samen organiseren en verdelen</span></a>
+<a class="choice" href="ios/abonnementen.html"><b>Abonnementen</b><span>Bekijk de pakketmogelijkheden en de huidige beschikbaarheid</span></a>
 <p class="note">iOS testversie · Internet is nodig om in te loggen. iPhone-meldingen en Apple-aankopen worden afzonderlijk getest voordat ze worden ingeschakeld.</p>
-</main></body></html>
+</main><script>
+(async function () {
+  const jar = window.JAR_iOS_session;
+  if (!jar?.native || new URLSearchParams(location.search).has('menu')) return;
+  jar.setStatus('Je laatste account wordt geopend…');
+  if (!window.supabase?.createClient) { jar.setStatus('Kies je account om in te loggen.'); return; }
+  const client = window.supabase.createClient('https://fqupzovqwzaqkatcfbka.supabase.co', 'sb_publishable_ahp4b1jbybZmcQDDkkdNrg_IvbVXZsY', jar.authOptions());
+  try {
+    // A cached localStorage session alone is not proof that an account is active.
+    const {data:{session}, error:sessionError} = await client.auth.getSession();
+    if (sessionError || !session?.user?.id) {
+      jar.setStatus('Kies je account om in te loggen.'); return;
+    }
+    // Confirm the user against Supabase before navigating to a workspace.
+    const {data:{user}, error:verificationError} = await client.auth.getUser();
+    if (verificationError || !user?.id || user.id !== session.user.id) {
+      jar.setStatus('Je sessie is verlopen. Log opnieuw in.'); return;
+    }
+    jar.bindUser?.(user.id);
+    location.replace(jar.resumeUrl ? jar.resumeUrl() : (jar.last() === 'family' ? 'family/family-dashboard.html' : 'prive/dashboard.html'));
+  } catch (_) { jar.setStatus('Verbinding niet beschikbaar. Kies een account of probeer later opnieuw.'); }
+})();
+</script></body></html>

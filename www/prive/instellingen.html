@@ -2,6 +2,8 @@
 <html lang="nl"><head>
 <script src="../app-config.js"></script>
 <script src="../mobile-compat.js"></script>
+<script src="../ios/native-session.js"></script>
+<script src="../ios/native-navigation.js"></script>
 <script src="../ios/native-fixes.js"></script>
 <link rel="stylesheet" href="../ios/native-fixes.css">
 <script src="../ios/ios-checkout-guard.js"></script>
@@ -92,7 +94,7 @@ function clearMsg(id){$(id).hidden=true}
 async function init(){
   updateLang();$('notificationOrigin').textContent=location.origin;
   if(!window.supabase?.createClient){msg('profileMessage','Supabase kon niet geladen worden.',true);return}
-  supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+  supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,window.JAR_iOS_session?.authOptions()||{});
   const {data:{session},error}=await supabaseClient.auth.getSession();
   if(error||!session?.user){location.replace('inloggen.html');return}
   const {data:{user:verifiedUser},error:verifiedError}=await supabaseClient.auth.getUser();

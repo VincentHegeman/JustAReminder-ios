@@ -4,6 +4,8 @@
 <head>
 <script src="../app-config.js"></script>
 <script src="../mobile-compat.js"></script>
+<script src="../ios/native-session.js"></script>
+<script src="../ios/native-navigation.js"></script>
 <script src="../ios/native-fixes.js"></script>
 <link rel="stylesheet" href="../ios/native-fixes.css">
 <script src="../ios/ios-checkout-guard.js"></script>
@@ -4471,7 +4473,8 @@ html[data-jar-appearance-mode="dark"] .jar-account-billing-check p{color:var(--p
     const supabaseClient =
         window.supabase.createClient(
             SUPABASE_URL,
-            SUPABASE_KEY
+            SUPABASE_KEY,
+            window.JAR_iOS_session?.authOptions() || {}
         );
 
 
@@ -4551,6 +4554,8 @@ html[data-jar-appearance-mode="dark"] .jar-account-billing-check p{color:var(--p
 
 
         currentUser = session.user;
+          window.JAR_iOS_session?.bindUser(currentUser?.id);
+          window.JAR_iOS_session?.mark('prive');
 
         await loadUserProfile();
 
@@ -5782,7 +5787,7 @@ html[data-jar-appearance-mode="dark"] .jar-account-billing-check p{color:var(--p
 
         if (taskRepeatField) {
             taskRepeatField.style.display =
-                reminderType === "task"
+                reminderType === "task" && (!window.JAR_iOS_session?.native || Number(document.getElementById('notificationMinutes')?.value)>=0)
                     ? "flex"
                     : "none";
         }
@@ -5894,7 +5899,11 @@ html[data-jar-appearance-mode="dark"] .jar-account-billing-check p{color:var(--p
                             : "reminder",
 
                     repeat_until_completed:
-                        document.getElementById("reminderType").value === "task",
+                        document.getElementById("reminderType").value === "task" &&
+                        (!window.JAR_iOS_session?.native ||
+                          (Number(document.getElementById('notificationMinutes').value)>=0 &&
+                           Boolean(document.getElementById('date').value) &&
+                           Boolean(document.getElementById('time').value))),
 
                     repeat_interval_minutes:
                         document.getElementById("reminderType").value === "task"

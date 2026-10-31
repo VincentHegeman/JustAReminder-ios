@@ -1,8 +1,8 @@
 {
   "name": "justareminder-mobile",
-  "version": "1.0.0-ios-pretest",
+  "version": "1.5.0-ios-interface-herstel",
   "private": true,
-  "description": "JustAReminder iOS — v1.1 weergave en gebruikerservaring, StoreKit/push achter server-gate",
+  "description": "JustAReminder iOS releasevoorbereiding: UI, sessiecontrole en veilige launch-gate; IAP/push vereist server",
   "scripts": {
     "preview": "node scripts/preview.mjs",
     "check": "node scripts/check.mjs",
@@ -12,7 +12,12 @@
     "android:add": "cap add android",
     "android:sync": "cap sync android",
     "android:open": "cap open android",
-    "check:iosfix": "node scripts/test-ios-fixes.mjs"
+    "check:iosfix": "node scripts/test-ios-fixes.mjs",
+    "check:session": "node scripts/test-ios-session.mjs",
+    "audit:release": "node scripts/audit-release.mjs",
+    "audit:source": "node scripts/audit-source.mjs",
+    "check:navigation": "node scripts/test-ios-navigation.mjs",
+    "check:all": "npm run check && npm run check:iosfix && npm run check:session && npm run check:navigation && npm run audit:source"
   },
   "dependencies": {
     "@capacitor/core": "^8.0.0",
