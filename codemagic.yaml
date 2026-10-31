@@ -1,9 +1,8 @@
-# JustAReminder — veilige iOS TestFlight-build (niet openbaar publiceren)
-# iOS Build Number: gebaseerd op de oplopende Codemagic projectbuildteller.
-# Offset 5 voorkomt de eerdere Apple-duplicaatfout voor bundle version 5.
+# JustAReminder — iOS TestFlight met APNs en layoutfix.
+# Publieke App Store-publicatie is uitgeschakeld. StoreKit-aankopen blijven uit.
 workflows:
   ios-ipa-controle:
-    name: JustAReminder - v1.5 iOS UI-herstel + layoutfix (alleen TestFlight) (niet openbaar)
+    name: JustAReminder - iPhone pushmeldingen + layoutfix (TestFlight)
     max_build_duration: 90
     instance_type: mac_mini_m2
     integrations:
@@ -15,12 +14,14 @@ workflows:
         distribution_type: app_store
         bundle_identifier: eu.justareminder.app
     scripts:
-      - name: Installeer layoutfix, afhankelijkheden en controleer bestanden
+      - name: Installeer layoutfix en native pushplugin
         script: |
           set -eu
           node installeer-ios-layoutfix.mjs .
           node test-ios-layoutfix.mjs .
+          node jar-install-native-push.mjs
           npm install
+          node --check www/ios/native-push.js
           npm run check
           node scripts/check-github.mjs
           npm run check:iosfix
@@ -30,26 +31,26 @@ workflows:
           if [ "${JAR_RELEASE_CHANNEL:-testflight}" = "production" ]; then
             npm run audit:release
           fi
-      - name: Genereer iOS-project met Capacitor 8 (SPM)
+      - name: Genereer Capacitor 8 iOS en activeer APNs
         script: |
           set -eu
           npx cap add ios --packagemanager SPM
           npx cap sync ios
           test -f ios/App/App.xcodeproj/project.pbxproj
-          # Codemagic verhoogt PROJECT_BUILD_NUMBER bij iedere projectbuild.
-          # Buildnummers zijn daardoor oplopend en starten boven de al geüploade 5.
+          node jar-install-native-push.mjs --native
+          # Gebruik de oplopende Codemagic-projectteller, nooit opnieuw Apple build 5.
           case "${PROJECT_BUILD_NUMBER:-}" in
-            ''|*[!0-9]*) echo 'Ongeldige Codemagic PROJECT_BUILD_NUMBER; stoppen om een dubbele upload te voorkomen.' >&2; exit 1 ;;
+            ''|*[!0-9]*) echo 'Ongeldige PROJECT_BUILD_NUMBER' >&2; exit 1 ;;
           esac
           export JAR_IOS_BUILD_NUMBER="$((5 + PROJECT_BUILD_NUMBER))"
-          echo "Nieuwe Apple CFBundleVersion: ${JAR_IOS_BUILD_NUMBER}"
+          echo "Apple buildnummer: ${JAR_IOS_BUILD_NUMBER}"
           node scripts/apply-ios-assets.mjs
-      - name: Configureer code signing voor Apple-distributie
+      - name: Configureer code signing
         script: |
           set -eu
           cd ios/App
           xcode-project use-profiles
-      - name: Bouw ondertekende IPA voor TestFlight
+      - name: Bouw IPA voor TestFlight
         script: |
           set -eu
           cd ios/App
@@ -57,6 +58,17 @@ workflows:
             --project 'App.xcodeproj' \
             --scheme 'App' \
             --config 'Release'
+      - name: Controleer APNs-entitlement van ondertekende IPA
+        script: |
+          set -eu
+          IPA="ios/App/build/ios/ipa/App.ipa"
+          test -f "$IPA"
+          mkdir -p /tmp/jar-apns-validation
+          unzip -q -o "$IPA" -d /tmp/jar-apns-validation
+          codesign -d --entitlements :- /tmp/jar-apns-validation/Payload/App.app > /tmp/jar-apns-validation/entitlements.plist 2>/dev/null
+          grep -q 'aps-environment' /tmp/jar-apns-validation/entitlements.plist || { echo 'Push Notifications entitlement ontbreekt: activeer capability bij Apple Developer en ververs signing profiel.' >&2; exit 1; }
+          grep -q 'production' /tmp/jar-apns-validation/entitlements.plist || { echo 'TestFlight moet productie-APNs gebruiken.' >&2; exit 1; }
+          echo 'APNs entitlement aanwezig voor TestFlight.'
     artifacts:
       - ios/App/build/ios/ipa/*.ipa
       - build/ios/ipa/*.ipa
