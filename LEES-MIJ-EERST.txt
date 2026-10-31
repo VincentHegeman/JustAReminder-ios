@@ -1,40 +1,34 @@
-JUSTAREMINDER iOS v1.0 — BRONPROJECT (28 oktober 2026)
-======================================================
-DIT IS GEEN IPA, GEEN TESTFLIGHT-BUILD EN NOG GEEN GEKEURDE APP.
+JUSTAREMINDER – IPHONE LAYOUTFIX (31 OKTOBER 2026)
 
-WEL GEDAAN:
-- Privé en Family vanuit je originele ZIPs behouden.
-- Gezamenlijke startpagina en mobiel abonnementenscherm.
-- 8 Apple-product-ID's opgenomen (4 basis, 4 extra bundels).
-- Directe Mollie-checkoutknoppen in de native testwrapper onderschept.
-- Capacitor 8 iOS-bronconfig met app-ID eu.justareminder.app.
-- Beveiligde inkoopketen uitgeschreven en concept-native StoreKit 2 Swift plugin toegevoegd.
-- Geen website, Supabase-productiedatabase of echte abonnementen gewijzigd.
+OPGELOSTE LAYOUTPROBLEMEN UIT JE 3 SCREENSHOTS
+1. iPhone-klok/ontvangsticonen staan over 'Agenda' en over de menutitel.
+2. Family-agendafilter, Dag/Week/Maand en pijltjes staan op een rommelige smalle kolom.
+3. De vaste navigatiebalk onderaan ligt OVER het geopende zijmenu.
 
-NOG NIET KLAAR:
-- Geen werkende StoreKit-aankopen, server-side Apple JWS-verificatie of Supabase-rechtenkoppeling.
-- Geen echte APNs pushmeldingen of betrouwbare iOS-achtergrondreminders.
-- Geen Xcode-native project gegenereerd of gecompileerd: hier ontbreken macOS/Xcode
-  en npm-netwerktoegang. Gebruik het Mac-script na kopieren naar een Mac.
-- Login en Family-functies moeten fysiek worden getest. Uitnodigings-URL Family onbekend.
-- Apple review screenshot ontbreekt zolang er geen echte app-build is.
+GEEN WIJZIGINGEN AAN
+- Mollie of StoreKit-abonnementen, klantgegevens of Supabase.
+- De gewone website / PWA / desktop-opmaak.
+- De werking van knoppen, agenda-items of inloggen.
 
-WINDOWS PREVIEW
-1. Pak ZIP helemaal uit.
-2. Dubbelklik 01-TEST-OP-WINDOWS.bat.
-3. Open http://localhost:4173.
-4. Kies Privé, Family of Apple-abonnementen bekijken.
+INSTALLEREN OP WINDOWS
+1. Download de ZIP en pak hem uit.
+2. Open de map 'JustAReminder-ios' op je pc (de map met 'www' en 'package.json').
+3. Kopieer alle bestanden uit deze ZIP naar DIE hoofdmap (dus naast 'package.json').
+4. Dubbelklik '01-FIX-INSTALLEREN.bat'. Er wordt automatisch een backup gemaakt.
+5. Dubbelklik '02-UPLOAD-NAAR-GITHUB.bat' en typ JA als je klaar bent om te uploaden.
+6. Bouw daarna in Codemagic een nieuwe TestFlight-versie en test op je iPhone.
 
-MAC iOS-PROJECT STARTEN
-1. Installeer Xcode en Node.js 22+ op de Mac.
-2. Kopieer deze gehele map naar Mac.
-3. Start 02-BOUW-OP-MAC.command (of in Terminal: npm install; npx cap add ios;
-   npx cap sync ios; npx cap open ios).
-4. Zet de Apple Developer Team-ID en signing in Xcode.
-5. Laat de StoreKit demo nog in testmodus; deploy niets naar gebruikers.
-6. Native StoreKit 2 conceptbestanden in ios-source NIET blind toevoegen voordat
-   de backend-verificatie, app-user-binding en refund/verlengingslogica klaar zijn.
+ALTERNATIEF – MAC/TERMINAL
+  node installeer-ios-layoutfix.mjs .
+  node test-ios-layoutfix.mjs .
+  git add www/ios/native-fixes.css
+  git commit -m "Fix iPhone layout"
+  git push origin HEAD:main
 
-BEVEILIGING:
-Neem geen service_role, Mollie LIVE API sleutel, Apple .p8 of andere secrets op in appcode.
-Lees docs/APPLE-AANKOPEN-BACKEND.md en docs/IOS-TOESTELLEN-EN-REVIEW.md.
+BELANGRIJK: Je huidige GitHub-connector weigert schrijfacties met fout 403.
+Daarom kan ik deze bestanden niet direct in jouw repo uploaden. Een lokale
+upload via bovenstaande stappen werkt zodra je pc GitHub-toegang heeft.
+
+De aanpassing betreft alleen de layout. Een nieuwe TestFlight-build is nodig
+voordat je de verbeteringen in de native iPhone-app ziet. De App Store is nog
+niet vrijgegeven voor betaalde publicatie.
