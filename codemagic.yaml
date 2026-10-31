@@ -1,6 +1,6 @@
-# NIET voor openbare lancering: controleer docs/KLANTLANCERING.md.
-# JustAReminder — ondertekende iOS-build met upload naar App Store Connect.
-# TestFlight intern testen na Apple-verwerking; NIET openbaar publiceren.
+# JustAReminder — veilige iOS TestFlight-build (niet openbaar publiceren)
+# iOS Build Number: gebaseerd op de oplopende Codemagic projectbuildteller.
+# Offset 5 voorkomt de eerdere Apple-duplicaatfout voor bundle version 5.
 workflows:
   ios-ipa-controle:
     name: JustAReminder - v1.5 iOS UI-herstel + layoutfix (alleen TestFlight) (niet openbaar)
@@ -18,8 +18,6 @@ workflows:
       - name: Installeer layoutfix, afhankelijkheden en controleer bestanden
         script: |
           set -eu
-          # De drie patchbestanden staan in de GitHub-hoofdmap.
-          # Maak eerst de CSS definitief voor deze build en stop bij fouten.
           node installeer-ios-layoutfix.mjs .
           node test-ios-layoutfix.mjs .
           npm install
@@ -29,7 +27,6 @@ workflows:
           npm run check:session
           npm run check:navigation
           npm run audit:source
-          # Een openbare release is pas toegestaan na een echte Apple/Supabase/APNs-audit.
           if [ "${JAR_RELEASE_CHANNEL:-testflight}" = "production" ]; then
             npm run audit:release
           fi
@@ -39,6 +36,13 @@ workflows:
           npx cap add ios --packagemanager SPM
           npx cap sync ios
           test -f ios/App/App.xcodeproj/project.pbxproj
+          # Codemagic verhoogt PROJECT_BUILD_NUMBER bij iedere projectbuild.
+          # Buildnummers zijn daardoor oplopend en starten boven de al geüploade 5.
+          case "${PROJECT_BUILD_NUMBER:-}" in
+            ''|*[!0-9]*) echo 'Ongeldige Codemagic PROJECT_BUILD_NUMBER; stoppen om een dubbele upload te voorkomen.' >&2; exit 1 ;;
+          esac
+          export JAR_IOS_BUILD_NUMBER="$((5 + PROJECT_BUILD_NUMBER))"
+          echo "Nieuwe Apple CFBundleVersion: ${JAR_IOS_BUILD_NUMBER}"
           node scripts/apply-ios-assets.mjs
       - name: Configureer code signing voor Apple-distributie
         script: |
