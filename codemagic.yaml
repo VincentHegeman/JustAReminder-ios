@@ -1,8 +1,8 @@
-# JustAReminder — iOS TestFlight met APNs en layoutfix.
+# JustAReminder — iOS TestFlight met APNs, layoutfix en Family-invoerfix.
 # Publieke App Store-publicatie is uitgeschakeld. StoreKit-aankopen blijven uit.
 workflows:
   ios-ipa-controle:
-    name: JustAReminder - iPhone pushmeldingen + layoutfix (TestFlight)
+    name: JustAReminder - iPhone pushmeldingen + Family-formulierfix (TestFlight)
     max_build_duration: 90
     instance_type: mac_mini_m2
     integrations:
@@ -14,11 +14,13 @@ workflows:
         distribution_type: app_store
         bundle_identifier: eu.justareminder.app
     scripts:
-      - name: Installeer layoutfix en native pushplugin
+      - name: Installeer layoutfix, Family-invoerfix en native pushplugin
         script: |
           set -eu
           node installeer-ios-layoutfix.mjs .
           node test-ios-layoutfix.mjs .
+          node fix-family-mobile-forms.mjs .
+          node test-family-mobile-forms.mjs .
           node jar-install-native-push.mjs
           npm install
           node --check www/ios/native-push.js

@@ -1,34 +1,28 @@
-JUSTAREMINDER – IPHONE LAYOUTFIX (31 OKTOBER 2026)
+JustAReminder — Family mobiele formulierfix — 1 november 2026
 
-OPGELOSTE LAYOUTPROBLEMEN UIT JE 3 SCREENSHOTS
-1. iPhone-klok/ontvangsticonen staan over 'Agenda' en over de menutitel.
-2. Family-agendafilter, Dag/Week/Maand en pijltjes staan op een rommelige smalle kolom.
-3. De vaste navigatiebalk onderaan ligt OVER het geopende zijmenu.
+OPLOSSING
+De algemene CSS van Slim invoeren behandelde vinkjes als gewone tekstvelden.
+Ook de gewone Family-wizard voor taken/herinneringen en ontvangers is
+responsief gemaakt: compacte vinkjes, naam naast de keuze, één kolom op iPhone.
+De privéwizard heeft geen Family-ledenkeuze en is ongewijzigd.
 
-GEEN WIJZIGINGEN AAN
-- Mollie of StoreKit-abonnementen, klantgegevens of Supabase.
-- De gewone website / PWA / desktop-opmaak.
-- De werking van knoppen, agenda-items of inloggen.
+ZO UPLOAD JE HET NAAR GITHUB (GEEN COMPUTER OF TERMINAL NODIG)
+1. Pak dit ZIP-bestand uit.
+2. Open https://github.com/VincentHegeman/JustAReminder-ios
+3. Upload in de HOOFDMAP deze drie bestanden:
+   - fix-family-mobile-forms.mjs
+   - test-family-mobile-forms.mjs
+   - codemagic.yaml  (de bestaande vervangen)
+4. Commit changes.
+5. Start in Codemagic workflow ios-ipa-controle op branch main.
+6. Installeer de NIEUWSTE build via TestFlight op een fysieke iPhone.
+7. Test 'Slim invoeren' én het normale Family-formulier met minstens
+   twee gezinsleden, zowel voor Taak als Herinnering.
 
-INSTALLEREN OP WINDOWS
-1. Download de ZIP en pak hem uit.
-2. Open de map 'JustAReminder-ios' op je pc (de map met 'www' en 'package.json').
-3. Kopieer alle bestanden uit deze ZIP naar DIE hoofdmap (dus naast 'package.json').
-4. Dubbelklik '01-FIX-INSTALLEREN.bat'. Er wordt automatisch een backup gemaakt.
-5. Dubbelklik '02-UPLOAD-NAAR-GITHUB.bat' en typ JA als je klaar bent om te uploaden.
-6. Bouw daarna in Codemagic een nieuwe TestFlight-versie en test op je iPhone.
+Deze Codemagic workflow past de Family HTML aan tijdens de iOS-build.
+De WEBSITE verandert niet automatisch; om dezelfde fix op de website te
+publiceren moet de installer eenmalig op de echte repository worden uitgevoerd
+met: node fix-family-mobile-forms.mjs .
+Commit daarna de gewijzigde www/family/family-dashboard.html in de website-repository.
 
-ALTERNATIEF – MAC/TERMINAL
-  node installeer-ios-layoutfix.mjs .
-  node test-ios-layoutfix.mjs .
-  git add www/ios/native-fixes.css
-  git commit -m "Fix iPhone layout"
-  git push origin HEAD:main
-
-BELANGRIJK: Je huidige GitHub-connector weigert schrijfacties met fout 403.
-Daarom kan ik deze bestanden niet direct in jouw repo uploaden. Een lokale
-upload via bovenstaande stappen werkt zodra je pc GitHub-toegang heeft.
-
-De aanpassing betreft alleen de layout. Een nieuwe TestFlight-build is nodig
-voordat je de verbeteringen in de native iPhone-app ziet. De App Store is nog
-niet vrijgegeven voor betaalde publicatie.
+GEEN live betalingen ingeschakeld; geen gegevens gewijzigd; geen App Store-release.
