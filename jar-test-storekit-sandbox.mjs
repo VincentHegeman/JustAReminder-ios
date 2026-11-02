@@ -10,6 +10,8 @@ const js=text('www/ios/paywall.js');
 const app=text('www/app-config.js');
 const native=text('JARStoreKitSandbox.swift');
 const html=text('www/ios/abonnementen.html');
+assert(!native.includes('transaction.environment'), 'VERKEERDE BUILD-VERSIE: iOS 16-only transaction.environment aanwezig. Bouw branch feature/storekit-integratie-20261102, niet main.');
+assert(native.includes('signedEnvironmentHint(result.jwsRepresentation)'), 'StoreKit iOS 15-correctie ontbreekt: bouw de nieuwste featurebranch.');
 assert.match(app,/iosPurchasesReady:\s*false/,'Echte Apple-betalingen mogen niet aanstaan');
 assert.match(js,/iosSandboxPurchasesReady === true/,'De Sandbox-aankoopschakelaar ontbreekt');
 assert.match(js,/iosPurchasesReady === true/,'De productiegate ontbreekt');
