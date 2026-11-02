@@ -24,7 +24,12 @@ if(!native){
   const page='www/ios/abonnementen.html';let html=read(page);
   const source='<script src="paywall.js"></script>';
   if(!html.includes(source))throw Error('iOS-paywallscript ontbreekt');
-  if(!html.includes('src="../app-config.js"'))html=html.replace(source,'<script src="../app-config.js"></script>\n'+source);
+  if(!html.includes('src="../app-config.js"'))html=html.replace(source,'<script src="../app-config.js"></script>\\n'+source);
+  if(!html.includes('cdn.jsdelivr.net/npm/@supabase/supabase-js@2'))
+    html=html.replace(source,'<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>\\n'+source);
+  if(!html.includes('id="restorePurchases"'))
+    html=html.replace('<div id="status"',
+      '<section style="margin:16px 0"><button id="restorePurchases" type="button" style="background:#fff;color:#235e56;border:1px solid #bdd1c9;border-radius:12px;padding:13px 16px;font:inherit;font-weight:700">Herstel Apple-aankopen</button><p>Beheer je abonnement via <a href="https://apps.apple.com/account/subscriptions" target="_blank" rel="noopener noreferrer">Apple</a>.</p></section><div id="status"');
   // The purchase and restore page must have its own Supabase authenticated client.
   if(!html.includes('cdn.jsdelivr.net/npm/@supabase/supabase-js@2'))
     html=html.replace('<script src="paywall.js"></script>',
