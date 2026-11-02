@@ -62,3 +62,17 @@ jobs:
               exit 1
             }
           echo 'App compiled for iOS Simulator without signing; no TestFlight upload.'
+      - name: Archive physical-device iOS app (arm64, no signing or upload)
+        run: |
+          set -o pipefail
+          xcodebuild -project ios/App/App.xcodeproj \
+            -scheme App -configuration Release \
+            -destination 'generic/platform=iOS' \
+            -archivePath /tmp/JustAReminder-unsigned.xcarchive \
+            CODE_SIGNING_ALLOWED=NO archive > /tmp/justareminder-archive.log 2>&1 || {
+              echo '---- Xcode iOS device archive diagnostics ----'
+              grep -n -E 'error:|failed|ARCHIVE FAILED|note: add|SwiftCompile' /tmp/justareminder-archive.log | tail -n 85 || true
+              echo '---- end diagnostics ----'
+              exit 1
+            }
+          echo 'iPhone device archive compiled without signing. No IPA or TestFlight upload.'
