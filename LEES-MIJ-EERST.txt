@@ -1,28 +1,44 @@
-JustAReminder — Family mobiele formulierfix — 1 november 2026
+JUSTAREMINDER - STOREKIT 2 SANDBOXVOORBEREIDING
+Datum: 1 november 2026
 
-OPLOSSING
-De algemene CSS van Slim invoeren behandelde vinkjes als gewone tekstvelden.
-Ook de gewone Family-wizard voor taken/herinneringen en ontvangers is
-responsief gemaakt: compacte vinkjes, naam naast de keuze, één kolom op iPhone.
-De privéwizard heeft geen Family-ledenkeuze en is ongewijzigd.
+Wat is gereed:
+- Een iOS StoreKit 2-bridge die Apple-producten kan ophalen en geverifieerde
+  aankoopdata kan voorbereiden, plus het expliciete Apple-herstelpad.
+- De iPhone-betaalpagina haalt de actuele productprijzen op indien Apple ze
+  beschikbaar maakt, maar start bewust GEEN aankoop.
+- De aparte Supabase Edge Function jar-apple-verify is gedeployed.
+  De serverfunctie is sandbox-only en staat standaard UIT totdat de
+  Supabase-secret JAR_IAP_SANDBOX_ENABLED expliciet op true wordt gezet.
+- Bestaande Mollie/privé/family rechten worden NIET aangepast.
 
-ZO UPLOAD JE HET NAAR GITHUB (GEEN COMPUTER OF TERMINAL NODIG)
-1. Pak dit ZIP-bestand uit.
-2. Open https://github.com/VincentHegeman/JustAReminder-ios
-3. Upload in de HOOFDMAP deze drie bestanden:
-   - fix-family-mobile-forms.mjs
-   - test-family-mobile-forms.mjs
-   - codemagic.yaml  (de bestaande vervangen)
-4. Commit changes.
-5. Start in Codemagic workflow ios-ipa-controle op branch main.
-6. Installeer de NIEUWSTE build via TestFlight op een fysieke iPhone.
-7. Test 'Slim invoeren' én het normale Family-formulier met minstens
-   twee gezinsleden, zowel voor Taak als Herinnering.
+Upload de volgende VIER bestanden naar de hoofdmap van de GitHub-repo:
+1. jar-install-storekit-sandbox.mjs
+2. jar-test-storekit-sandbox.mjs
+3. paywall-sandbox.js
+4. JARStoreKitSandbox.swift
+En vervang de bestaande codemagic.yaml door de nieuwe uit dit pakket.
 
-Deze Codemagic workflow past de Family HTML aan tijdens de iOS-build.
-De WEBSITE verandert niet automatisch; om dezelfde fix op de website te
-publiceren moet de installer eenmalig op de echte repository worden uitgevoerd
-met: node fix-family-mobile-forms.mjs .
-Commit daarna de gewijzigde www/family/family-dashboard.html in de website-repository.
+Let op: het zijn dus VIJF bestanden in totaal. Upload NIET een map in een map.
+Start vervolgens Codemagic workflow ios-ipa-controle, branch main.
+Controleer of de stappen "StoreKit-productlijst voorbereid" en
+"StoreKit 2 bridged plugin geregistreerd" in het bouwlog staan.
 
-GEEN live betalingen ingeschakeld; geen gegevens gewijzigd; geen App Store-release.
+Dit is ALLEEN het veilige fundament, GEEN werkend betaald abonnement.
+Om later Sandbox-aankopen te testen moeten nog worden aangesloten:
+- de iPhone-aankoopflow na een beveiligde server-preflight;
+- volledig geverifieerde servernotificaties v2 + verlengen/refund/herstel;
+- reconciliatie naar bestaande Privé/Family premiumrechten, zonder
+  Mollie-rechten te overschrijven;
+- Apple Sandbox-testaccounts, echte iPhone-tests, productmetadatatest,
+  restore en annuleringen.
+- Review / definitieve product-activering pas na goedkeuring.
+
+Veiligheidsregels:
+- In productie JAR_RELEASE_CHANNEL=production blijft audit:release blokkerend.
+- De configuratie iosPurchasesReady:false blijft bewust ongewijzigd.
+- Codemagic submit_to_app_store:false blijft ongewijzigd.
+- Geen Apple-sleutels, Supabase service role keys, wachtwoorden in GitHub.
+- De oude Mollie-checkoutguard in de iPhone-app blijft actief.
+
+Apple documentatie: https://developer.apple.com/documentation/storekit
+Apple certificaten: https://www.apple.com/certificateauthority/
