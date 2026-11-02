@@ -21,6 +21,10 @@ assert.match(crypto,/compactVerify\(signed,key/);
 assert.match(crypto,/header\.alg!=='ES256'/);
 assert.match(crypto,/tx\.appAccountToken/);
 assert.match(crypto,/APPLE_APP_ID/);
+assert(!verify.includes('awaitverifier') && !notifications.includes('awaitverifier'),
+  'Invalid Edge verifier invocation');
+assert.match(verify,/await verifier\(env\)\.verifyAndDecodeTransaction/);
+assert.match(notifications,/await verifier\(candidate\)\.verifyAndDecodeNotification/);
 assert.match(verify,/api\.auth\.getUser\(auth\.slice\(7\)\)/);
 assert.match(verify,/decoded\.appAccountToken/);
 assert.match(verify,/settings\.production_purchases_enabled/);
