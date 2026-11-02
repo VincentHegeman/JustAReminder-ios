@@ -24,6 +24,9 @@ workflows:
           node test-family-mobile-forms.mjs .
           node jar-install-storekit-sandbox.mjs
           node jar-test-storekit-sandbox.mjs
+          node tests/test-bridge.mjs
+          node tests/test-paywall.mjs
+          node tests/test-server-security.mjs
           node jar-install-native-push.mjs
           npm install
           node --check www/ios/native-push.js
