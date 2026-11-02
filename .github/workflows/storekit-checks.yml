@@ -1,0 +1,31 @@
+name: StoreKit source & security checks
+on:
+  pull_request:
+    paths:
+      - 'paywall-sandbox.js'
+      - 'jar-install-storekit-sandbox.mjs'
+      - 'jar-test-storekit-sandbox.mjs'
+      - 'JARStoreKitSandbox.swift'
+      - 'tests/**'
+      - 'supabase/functions/**'
+      - 'supabase/migrations/**'
+      - '.github/workflows/storekit-checks.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  storekit-unit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: StoreKit source checks (no app build, no payments)
+        run: |
+          node --check paywall-sandbox.js
+          node --check jar-install-storekit-sandbox.mjs
+          node --check jar-test-storekit-sandbox.mjs
+          node tests/test-bridge.mjs
+          node tests/test-paywall.mjs
+          node tests/test-server-security.mjs
