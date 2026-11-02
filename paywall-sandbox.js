@@ -147,10 +147,10 @@
   $('free')?.addEventListener('click', () => location.assign('../prive/index.html'));
   for (const b of choiceButtons) b.addEventListener('click', () => {
     const tier = b.dataset.plan === 'plus' ? 'private' : 'premium';
-    void buy(catalogue?.[tier]?.[period]);
+    return buy(catalogue?.[tier]?.[period]);
   });
-  $('bundleInfo')?.addEventListener('click', () => void buy('eu.justareminder.' + $('bundle').value));
-  $('restorePurchases')?.addEventListener('click', () => void restore());
+  $('bundleInfo')?.addEventListener('click', () => buy('eu.justareminder.' + $('bundle').value));
+  $('restorePurchases')?.addEventListener('click', () => restore());
   render();
   if (plugin) void showProducts();
 })();
