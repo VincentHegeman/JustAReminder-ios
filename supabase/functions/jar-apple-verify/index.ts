@@ -30,7 +30,7 @@ Deno.serve(async req=>{
   if(body.action==='preflight'){
    if(env==='Sandbox'&&!settings.sandbox_test_enabled)
     return respond({ready:false,error:'Apple Sandbox-tests staan uit'},503);
-   if(env==='Production'&&!settings.production_purchases_enabled)
+   if(env==='Production'&&(!settings.production_purchases_enabled||!settings.production_rights_enabled))
     return respond({ready:false,error:'Echte Apple-aankopen staan uit'},503);
    // Avoid double-billing an existing Mollie customer on first Apple purchase.
    if(env==='Production'){
@@ -58,6 +58,7 @@ Deno.serve(async req=>{
   try {await recordSignedTransaction(db,decoded as Record<string,any>,env)}
   catch(e){console.error('Apple verified purchase not stored',e);return respond({error:'Apple-aankoop kon niet veilig worden geregistreerd'},503)}
   return respond({verified:true,recorded:true,transactionId:String(decoded.transactionId),
-   environment:env,rightsReady:env==='Sandbox'?settings.sandbox_test_enabled:settings.production_rights_enabled});
+   environment:env,rightsReady:env==='Production'&&settings.production_rights_enabled,
+   sandboxRecorded:env==='Sandbox'&&settings.sandbox_test_enabled});
  }catch(e){console.error('Apple verify failed:',e);return respond({error:'Apple-betaaldienst tijdelijk niet beschikbaar'},503)}
 });
