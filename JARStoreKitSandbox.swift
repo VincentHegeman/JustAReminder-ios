@@ -11,7 +11,8 @@ public final class JARStoreKitPlugin: CAPPlugin, CAPBridgedPlugin {
         CAPPluginMethod(name: "getProducts", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "purchase", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "restorePurchases", returnType: CAPPluginReturnPromise),
-        CAPPluginMethod(name: "unfinishedPurchases", returnType: CAPPluginReturnPromise)
+        CAPPluginMethod(name: "unfinishedPurchases", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "finishAfterServerVerification", returnType: CAPPluginReturnPromise)
     ]
     private let allowedIds: Set<String> = [
         "eu.justareminder.private.monthly.v2", "eu.justareminder.private.yearly",
@@ -49,7 +50,7 @@ public final class JARStoreKitPlugin: CAPPlugin, CAPBridgedPlugin {
                     switch result {
                     case .verified(let transaction):
                         call.resolve(["status":"verify_on_server", "transactionId":String(transaction.id),
-                                      "productId":transaction.productID, "signedTransaction":result.jwsRepresentation])
+                                      "productId":transaction.productID, "environment":transaction.environment == .sandbox ? "Sandbox" : "Production", "signedTransaction":result.jwsRepresentation])
                         // NEVER finish before the backend has proved delivery of paid rights.
                     case .unverified: call.reject("De Apple-transactie is niet geverifieerd")
                     }
@@ -69,7 +70,7 @@ public final class JARStoreKitPlugin: CAPPlugin, CAPBridgedPlugin {
                 for await result in Transaction.currentEntitlements {
                     if case .verified(let transaction) = result, allowedIds.contains(transaction.productID) {
                         transactions.append(["transactionId":String(transaction.id),
-                            "productId":transaction.productID, "signedTransaction":result.jwsRepresentation])
+                            "productId":transaction.productID, "environment":transaction.environment == .sandbox ? "Sandbox" : "Production", "signedTransaction":result.jwsRepresentation])
                     }
                 }
                 call.resolve(["transactions":transactions])
@@ -82,12 +83,33 @@ public final class JARStoreKitPlugin: CAPPlugin, CAPBridgedPlugin {
             for await result in Transaction.unfinished {
                 if case .verified(let transaction) = result, allowedIds.contains(transaction.productID) {
                     transactions.append(["transactionId":String(transaction.id),
-                        "productId":transaction.productID, "signedTransaction":result.jwsRepresentation])
+                        "productId":transaction.productID, "environment":transaction.environment == .sandbox ? "Sandbox" : "Production", "signedTransaction":result.jwsRepresentation])
                 }
             }
             call.resolve(["transactions":transactions])
         }
     }
+
+    @objc public func finishAfterServerVerification(_ call: CAPPluginCall) {
+        guard let rawId = call.getString("transactionId"),
+              let transactionId = UInt64(rawId) else {
+            call.reject("Transaction-ID ontbreekt"); return
+        }
+        // The caller MUST first receive verified=true, recorded=true and
+        // rightsReady=true from jar-apple-verify. No entitlement in this plugin.
+        Task {
+            for await result in Transaction.unfinished {
+                if case .verified(let transaction) = result,
+                   transaction.id == transactionId,
+                   allowedIds.contains(transaction.productID) {
+                    await transaction.finish()
+                    call.resolve(["finished":true]); return
+                }
+            }
+            call.resolve(["finished":false])
+        }
+    }
+
 }
 
 // Register local Capacitor plugin without changing SPM dependencies.

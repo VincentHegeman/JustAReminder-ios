@@ -1,0 +1,14 @@
+import fs from 'node:fs';
+import assert from 'node:assert/strict';
+const swift=fs.readFileSync('JARStoreKitSandbox.swift','utf8');
+const installer=fs.readFileSync('jar-install-storekit-sandbox.mjs','utf8');
+const yaml=fs.readFileSync('codemagic.yaml','utf8');
+assert(swift.includes('try await AppStore.sync()'),'Must support AppStore.sync');
+assert(swift.includes('Transaction.currentEntitlements'),'Missing Apple restore');
+assert(swift.includes('Transaction.unfinished'),'Missing interrupted purchase recovery');
+assert(swift.includes('await transaction.finish()'),'Missing server-ack finish');
+assert(!swift.includes('jar_user_plan_entitlements'),'Swift must not grant Supabase rights');
+assert(installer.includes('JARBridgeViewController'),'Capacitor subclass required');
+assert(yaml.includes('node jar-test-storekit-sandbox.mjs'),'Build integration missing');
+assert(yaml.includes('submit_to_app_store: false'),'App Store publishing must stay OFF');
+console.log('StoreKit security, automatic Codemagic registration and publishing gate OK');

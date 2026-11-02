@@ -1,44 +1,52 @@
-JUSTAREMINDER - STOREKIT 2 SANDBOXVOORBEREIDING
-Datum: 1 november 2026
+JustAReminder — StoreKit 2 volledige bronintegratie, 2 november 2026
 
-Wat is gereed:
-- Een iOS StoreKit 2-bridge die Apple-producten kan ophalen en geverifieerde
-  aankoopdata kan voorbereiden, plus het expliciete Apple-herstelpad.
-- De iPhone-betaalpagina haalt de actuele productprijzen op indien Apple ze
-  beschikbaar maakt, maar start bewust GEEN aankoop.
-- De aparte Supabase Edge Function jar-apple-verify is gedeployed.
-  De serverfunctie is sandbox-only en staat standaard UIT totdat de
-  Supabase-secret JAR_IAP_SANDBOX_ENABLED expliciet op true wordt gezet.
-- Bestaande Mollie/privé/family rechten worden NIET aangepast.
+BELANGRIJK
+Dit is een broncodepakket, geen bewezen productieklaar betalingsplatform.
+Er is GEEN nieuwe iOS-build gestart, GEEN publieke publicatie gedaan en
+GEEN echte Apple-betaling geactiveerd. Bestaande Mollie-klanten blijven intact.
 
-Upload de volgende VIER bestanden naar de hoofdmap van de GitHub-repo:
-1. jar-install-storekit-sandbox.mjs
-2. jar-test-storekit-sandbox.mjs
-3. paywall-sandbox.js
-4. JARStoreKitSandbox.swift
-En vervang de bestaande codemagic.yaml door de nieuwe uit dit pakket.
+BEREIK
+- Swift StoreKit 2 native bridge: producten, aankoop, account token, herstel,
+  ondertekend JWS, na serverregistratie de transactie afronden.
+- De iOS-betaalpagina: lokale Apple-prijzen, herstelknop, statusberichten.
+- Supabase servercode: Apple handtekening + certificaatketen controleren met
+  WebCrypto (niet met de incompatibele Node X509Certificate-methoden),
+  aankoopregistratie, server-to-server notificaties, verlenging, opzegging,
+  refund en vervaldatums.
+- SQL: accountkoppeling en idempotente transactieregistratie; veilige
+  afleiding van Apple-rechten naast de bestaande Mollie-rechten.
+- APPLE-PRODUCTEN blijven op enabled_for_purchase=false en app-config houdt
+  iosPurchasesReady:false. Geen productiebetalingen voor expliciete toestemming.
 
-Let op: het zijn dus VIJF bestanden in totaal. Upload NIET een map in een map.
-Start vervolgens Codemagic workflow ios-ipa-controle, branch main.
-Controleer of de stappen "StoreKit-productlijst voorbereid" en
-"StoreKit 2 bridged plugin geregistreerd" in het bouwlog staan.
+WAT AL RECHTSTREEKS IN SUPABASE IS AANGEBRACHT
+- ledger/config migratie jar_apple_storekit_ledger_and_guard_20261102
+- jar_apple_iap_settings bestaat met alle betaal- en rechtenvlaggen UIT
+- ledgerrpc jar_apple_apply_signed_transaction bestaat
+- De overlay-migratie 20261102_apple_rights_overlay.sql is NIET toegepast.
+- De twee Edge Functions in dit pakket zijn nog NIET gedeployed.
 
-Dit is ALLEEN het veilige fundament, GEEN werkend betaald abonnement.
-Om later Sandbox-aankopen te testen moeten nog worden aangesloten:
-- de iPhone-aankoopflow na een beveiligde server-preflight;
-- volledig geverifieerde servernotificaties v2 + verlengen/refund/herstel;
-- reconciliatie naar bestaande Privé/Family premiumrechten, zonder
-  Mollie-rechten te overschrijven;
-- Apple Sandbox-testaccounts, echte iPhone-tests, productmetadatatest,
-  restore en annuleringen.
-- Review / definitieve product-activering pas na goedkeuring.
+NOG NIET GEREED
+- GitHub connector heeft 403 op schrijven; dus bestandspakket niet gecommit.
+- Voor productie is APPLE_APP_ID nodig (numerieke App Store Connect app ID,
+  niet Apple Team ID), in de Supabase Edge Function Secrets.
+- App Store Connect: servernotifications V2 Production en Sandbox URL
+  https://fqupzovqwzaqkatcfbka.supabase.co/functions/v1/jar-apple-notifications
+- StoreKit transacties/S2S-handtekeningen moeten op echte Apple Sandbox
+  daadwerkelijk end-to-end doorlopen; Swift-syntax en JS testen vervangen dit niet.
+- Bij productieuitrol moeten de Apple purchase en rechtenvlaggen gecontroleerd
+  ingeschakeld worden, maar niet nu.
+- OCSP / certificaatstatus via Apple server wordt nog niet gecheckt in de
+  WebCrypto-compatibiliteitsvariant. Onderzoek eerst OCSP of een verifieer-
+  service op een compatibele full Node runtime voordat echte betalingen starten.
+- App Store Connect review van de abonnementen is nog nodig.
 
-Veiligheidsregels:
-- In productie JAR_RELEASE_CHANNEL=production blijft audit:release blokkerend.
-- De configuratie iosPurchasesReady:false blijft bewust ongewijzigd.
-- Codemagic submit_to_app_store:false blijft ongewijzigd.
-- Geen Apple-sleutels, Supabase service role keys, wachtwoorden in GitHub.
-- De oude Mollie-checkoutguard in de iPhone-app blijft actief.
+BRONCODE BESTANDEN VOOR GITHUB
+Upload de inhoud van deze ZIP naar de root van dezelfde GitHub-repository,
+met behoud van submappen. Nooit de ZIP zelf als één bestand uploaden.
+Vervang de 5 oude StoreKit-bronbestanden door deze 5 nieuwe bestanden.
+De bestanden in supabase/functions en supabase/migrations zijn bronbestanden.
 
-Apple documentatie: https://developer.apple.com/documentation/storekit
-Apple certificaten: https://www.apple.com/certificateauthority/
+GEEN NIEUWE BUILD ALS TUSSENSTAP
+Pas na code-review, de Supabase rechtenoverlay, correcte webhook, Apple ID,
+negatieve securitytests en sandbox e2e-transacties één nieuwe TestFlight-build.
+Geen App Store-publicatie zonder expliciete toestemming.

@@ -1,15 +1,25 @@
 #!/usr/bin/env node
+/* Tests storefront source integrity. Cannot claim a successful Apple transaction. */
 import fs from 'node:fs';
-import path from 'node:path';
-const root=path.resolve(process.cwd());
-const has=(f,s)=>fs.readFileSync(path.join(root,f),'utf8').includes(s);
-const ready=[
- ['Paywall toont Apple-prijzen en blokkeert purchases',has('www/ios/paywall.js','plugin.getProducts')&&!has('www/ios/paywall.js','plugin.purchase(')],
- ['Geen betaalrechten uit client',!has('www/ios/paywall.js','jar_user_plan_entitlements')],
- ['App Store afgeschermd',has('www/app-config.js','iosPurchasesReady: false')],
- ['Productpagina bestaat',has('www/ios/abonnementen.html','id="premium-price"')],
- ['Native Mollie-guard blijft actief',fs.existsSync(path.join(root,'www/ios/ios-checkout-guard.js'))],
- ['Family-formulierfix behouden',fs.existsSync(path.join(root,'fix-family-mobile-forms.mjs'))]
-];
-let failed=0;for(const [label,ok] of ready){console.log((ok?'OK ':'FOUT ')+label);if(!ok)failed++;}
-if(failed)process.exitCode=1;
+import assert from 'node:assert/strict';
+const read=p=>fs.readFileSync(p,'utf8');
+const page=read('www/ios/abonnementen.html');
+const source=read('www/ios/paywall.js');
+const native=read('JARStoreKitSandbox.swift');
+const cfg=read('www/app-config.js');
+assert.match(page,/id="restorePurchases"/);
+assert.match(page,/supabase-js@2/);
+assert.match(page,/src="\.\.\/app-config\.js"/);
+assert.match(source,/finishAfterServerVerification/);
+assert.match(source,/functions\.invoke\('jar-apple-verify'/);
+assert.match(source,/canBuy=native&&window\.JAR_MOBILE_CONFIG\?\.iosPurchasesReady===true/);
+assert.match(source,/server\('preflight'/);
+assert.match(source,/server\('verify'/);
+assert.match(source,/restorePurchases/);
+assert.match(native,/CAPPluginMethod\(name: "finishAfterServerVerification"/);
+assert.match(native,/\.appAccountToken\(accountUUID\)/);
+assert.match(cfg,/iosPurchasesReady:\s*false/);
+assert.match(cfg,/iosPurchaseEnvironment:\s*'Sandbox'/);
+assert(!source.includes('jar_user_plan_entitlements'));
+assert(!source.includes('mollie.com'));
+console.log('StoreKit volledige clientflow aanwezig: products, preflight, signed purchase, server verify, finish, restore. Live aankoopflag UIT.');

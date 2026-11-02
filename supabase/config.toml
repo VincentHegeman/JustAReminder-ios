@@ -1,0 +1,8 @@
+# De Edge Function die Apple aanroept gebruikt een cryptografisch getekende JWS.
+# Apple kan geen Supabase JWT toevoegen aan zijn webhook.
+[functions.jar-apple-notifications]
+verify_jwt = false
+
+# De app stuurt het Supabase access token mee, login verplicht.
+[functions.jar-apple-verify]
+verify_jwt = true

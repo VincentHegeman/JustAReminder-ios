@@ -13,10 +13,25 @@ function read(rel){if(!fs.existsSync(file(rel)))throw Error('Ontbrekend bestand:
 function write(rel,text){fs.mkdirSync(path.dirname(file(rel)),{recursive:true});fs.writeFileSync(file(rel),text,'utf8');}
 if(JSON.parse(read('capacitor.config.json')).appId!=='eu.justareminder.app')throw Error('Verkeerd bundle ID');
 if(!native){
+  // TestFlight runs StoreKit sandbox; this does not turn purchases on.
+  const config='www/app-config.js';let conf=read(config);
+  if(!conf.includes('iosPurchaseEnvironment:')){
+    if(!/iosPurchasesReady:\s*false/.test(conf))throw Error('Onverwachte Apple purchase release gate');
+    conf=conf.replace(/iosPurchasesReady:\s*false\s*,/, "iosPurchasesReady: false,\n  iosPurchaseEnvironment: 'Sandbox',");
+    if(!conf.includes('iosPurchaseEnvironment:'))throw Error('Kon StoreKit TestFlight-omgeving niet zetten');
+    write(config,conf);
+  }
   const page='www/ios/abonnementen.html';let html=read(page);
   const source='<script src="paywall.js"></script>';
   if(!html.includes(source))throw Error('iOS-paywallscript ontbreekt');
   if(!html.includes('src="../app-config.js"'))html=html.replace(source,'<script src="../app-config.js"></script>\n'+source);
+  // The purchase and restore page must have its own Supabase authenticated client.
+  if(!html.includes('cdn.jsdelivr.net/npm/@supabase/supabase-js@2'))
+    html=html.replace('<script src="paywall.js"></script>',
+      '<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>\n<script src="paywall.js"></script>');
+  if(!html.includes('id="restorePurchases"'))
+    html=html.replace('<div id="status"',
+      '<section class="restore-purchases" style="padding:14px 0"><button type="button" id="restorePurchases" style="background:white;color:#245752;border:1px solid #b7d1c7;padding:14px;border-radius:12px;font:inherit;font-weight:700">Herstel Apple-aankopen</button><p>Beheer of zeg je Apple-abonnement op via <a href="https://apps.apple.com/account/subscriptions" target="_blank" rel="noopener noreferrer">Apple-abonnementen</a>.</p></section><div id="status"');
   write(page,html);
   write('www/ios/paywall.js',fs.readFileSync(path.join(here,'paywall-sandbox.js'),'utf8'));
   console.log('StoreKit-productlijst voorbereid; Apple-aankopen nog geblokkeerd.');
