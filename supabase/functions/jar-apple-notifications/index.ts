@@ -16,7 +16,7 @@ Deno.serve(async req=>{
  // No unsigned headers, untrusted payload properties or HTTP auth grant permissions.
  let decoded:any,env:'Sandbox'|'Production'|undefined;
  for(const candidate of ['Sandbox','Production'] as const){
-  try {decoded=awaitverifier(candidate).verifyAndDecodeNotification(signed);env=candidate;break}
+  try {decoded=await verifier(candidate).verifyAndDecodeNotification(signed);env=candidate;break}
   catch{continue}
  }
  if(!env||!decoded)return reply({error:'Apple JWS could not be verified'},401);

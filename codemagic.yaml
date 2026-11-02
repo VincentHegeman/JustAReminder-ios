@@ -18,12 +18,24 @@ workflows:
       - name: Installeer layoutfix, Family-invoerfix en native pushplugin
         script: |
           set -eu
+          echo "JAR CODECHECK: branch=${CM_BRANCH:-niet-bekend} commit=$(git rev-parse --short HEAD)"
+          if [ "${CM_BRANCH:-}" != "feature/storekit-integratie-20261102" ]; then
+            echo "FOUT: verkeerde Codemagic-branch. Selecteer feature/storekit-integratie-20261102 (niet main)." >&2
+            exit 1
+          fi
+          if grep -Fq 'transaction.environment' JARStoreKitSandbox.swift; then
+            echo "FOUT: verouderde StoreKit-broncode (iOS 16-only API). Stop vóór IPA." >&2
+            exit 1
+          fi
           node installeer-ios-layoutfix.mjs .
           node test-ios-layoutfix.mjs .
           node fix-family-mobile-forms.mjs .
           node test-family-mobile-forms.mjs .
           node jar-install-storekit-sandbox.mjs
           node jar-test-storekit-sandbox.mjs
+          node tests/test-bridge.mjs
+          node tests/test-paywall.mjs
+          node tests/test-server-security.mjs
           node jar-install-native-push.mjs
           npm install
           node --check www/ios/native-push.js
@@ -44,6 +56,14 @@ workflows:
           test -f ios/App/App.xcodeproj/project.pbxproj
           node jar-install-native-push.mjs --native
           node jar-install-storekit-sandbox.mjs --native
+          if grep -Fq 'transaction.environment' ios/App/App/AppDelegate.swift; then
+            echo "FOUT: oude StoreKit-API aanwezig in de gegenereerde AppDelegate.swift. IPA niet gestart." >&2
+            exit 1
+          fi
+          grep -Fq 'signedEnvironmentHint' ios/App/App/AppDelegate.swift || {
+            echo "FOUT: veilige StoreKit iOS 15-correctie ontbreekt in AppDelegate.swift." >&2
+            exit 1
+          }
           # Gebruik de oplopende Codemagic-projectteller, nooit opnieuw Apple build 5.
           case "${PROJECT_BUILD_NUMBER:-}" in
             ''|*[!0-9]*) echo 'Ongeldige PROJECT_BUILD_NUMBER' >&2; exit 1 ;;

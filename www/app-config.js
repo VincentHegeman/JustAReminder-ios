@@ -4,5 +4,7 @@ window.JAR_MOBILE_CONFIG = Object.freeze({
   // De exacte openbare Family-invitelink is nog niet geverifieerd.
   // Gebruik geen localhost-links in uitnodigingen.
   familyPublicBaseUrl: '',
-  iosPurchasesReady: false, // Alleen activeren na StoreKit + backend verificatie.
+  iosPurchasesReady: false, // Productieaankopen blijven uit tot expliciete release.
+  iosSandboxPurchasesReady: true, // Uitsluitend Sandbox binnen native TestFlight.
+  iosPurchaseEnvironment: 'Sandbox',
 });

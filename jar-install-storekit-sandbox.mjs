@@ -1,59 +1,61 @@
 #!/usr/bin/env node
-/* Phased, fail-closed Capacitor 8 iOS StoreKit bridge installer.
-   Step 1: before cap sync. Step 2: after jar-install-native-push --native.
-   Does not enable purchase or grant entitlements. */
+/* Native Capacitor 8 StoreKit bridge installer.
+   Runs twice in Codemagic: before npm install and after cap sync ios.
+   Never enables live purchases, changes Mollie, or grants entitlements. */
 import fs from 'node:fs';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
-const root=path.resolve(process.cwd());
-const here=path.dirname(fileURLToPath(import.meta.url));
-const native=process.argv.includes('--native');
-function file(rel){return path.join(root,rel);}
-function read(rel){if(!fs.existsSync(file(rel)))throw Error('Ontbrekend bestand: '+rel);return fs.readFileSync(file(rel),'utf8');}
-function write(rel,text){fs.mkdirSync(path.dirname(file(rel)),{recursive:true});fs.writeFileSync(file(rel),text,'utf8');}
-if(JSON.parse(read('capacitor.config.json')).appId!=='eu.justareminder.app')throw Error('Verkeerd bundle ID');
-if(!native){
-  // TestFlight runs StoreKit sandbox; this does not turn purchases on.
-  const config='www/app-config.js';let conf=read(config);
-  if(!conf.includes('iosPurchaseEnvironment:')){
-    if(!/iosPurchasesReady:\s*false/.test(conf))throw Error('Onverwachte Apple purchase release gate');
-    conf=conf.replace(/iosPurchasesReady:\s*false\s*,/, "iosPurchasesReady: false,\n  iosPurchaseEnvironment: 'Sandbox',");
-    if(!conf.includes('iosPurchaseEnvironment:'))throw Error('Kon StoreKit TestFlight-omgeving niet zetten');
-    write(config,conf);
+const root=process.cwd(), here=path.dirname(fileURLToPath(import.meta.url));
+const full=p=>path.join(root,p);
+const read=p=>fs.readFileSync(full(p),'utf8');
+const save=(p,content)=>{fs.mkdirSync(path.dirname(full(p)),{recursive:true});fs.writeFileSync(full(p),content,'utf8')};
+if(JSON.parse(read('capacitor.config.json')).appId!=='eu.justareminder.app')
+  throw Error('Onverwacht iOS-bundle-ID');
+if(!process.argv.includes('--native')){
+  let config=read('www/app-config.js');
+  if(!/iosPurchasesReady:\s*false/.test(config))
+    throw Error('Apple-purchasegate mag tijdens het voorbereiden niet aanstaan');
+  if(!config.includes('iosPurchaseEnvironment:')){
+    config=config.replace(/iosPurchasesReady:\s*false\s*,/,
+      "iosPurchasesReady: false,\n  iosPurchaseEnvironment: 'Sandbox',");
+    save('www/app-config.js',config);
   }
-  const page='www/ios/abonnementen.html';let html=read(page);
-  const source='<script src="paywall.js"></script>';
-  if(!html.includes(source))throw Error('iOS-paywallscript ontbreekt');
-  if(!html.includes('src="../app-config.js"'))html=html.replace(source,'<script src="../app-config.js"></script>\n'+source);
-  // The purchase and restore page must have its own Supabase authenticated client.
+  const page='www/ios/abonnementen.html';
+  let html=read(page);
+  html=html.replace('Testversie zonder aankopen.', 'Sandbox-test zonder echte betalingen.');
+  html=html.replace('Apple-betalingen zijn nog niet gekoppeld en er wordt niets afgeschreven.',
+    'Apple Sandbox-aankopen worden uitsluitend met TestFlight uitgevoerd. Er wordt geen echt geld afgeschreven.');
+  const anchor='<script src="paywall.js"></script>';
+  if(!html.includes(anchor))throw Error('Abonnementenpagina heeft geen paywall-script');
+  if(!html.includes('src="../app-config.js"'))
+    html=html.replace(anchor,'<script src="../app-config.js"></script>\n'+anchor);
   if(!html.includes('cdn.jsdelivr.net/npm/@supabase/supabase-js@2'))
-    html=html.replace('<script src="paywall.js"></script>',
-      '<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>\n<script src="paywall.js"></script>');
+    html=html.replace(anchor,'<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>\n'+anchor);
   if(!html.includes('id="restorePurchases"'))
     html=html.replace('<div id="status"',
-      '<section class="restore-purchases" style="padding:14px 0"><button type="button" id="restorePurchases" style="background:white;color:#245752;border:1px solid #b7d1c7;padding:14px;border-radius:12px;font:inherit;font-weight:700">Herstel Apple-aankopen</button><p>Beheer of zeg je Apple-abonnement op via <a href="https://apps.apple.com/account/subscriptions" target="_blank" rel="noopener noreferrer">Apple-abonnementen</a>.</p></section><div id="status"');
-  write(page,html);
-  write('www/ios/paywall.js',fs.readFileSync(path.join(here,'paywall-sandbox.js'),'utf8'));
-  console.log('StoreKit-productlijst voorbereid; Apple-aankopen nog geblokkeerd.');
+      '<section class="restore-purchases" style="padding:14px 0"><button type="button" id="restorePurchases" style="background:white;color:#245752;border:1px solid #b7d1c7;padding:14px;border-radius:12px;font:inherit;font-weight:700">Herstel Apple-aankopen</button><p>Beheer of annuleer je abonnement via <a href="https://apps.apple.com/account/subscriptions" target="_blank" rel="noopener noreferrer">Apple</a>.</p></section><div id="status"');
+  save(page,html);
+  save('www/ios/paywall.js',fs.readFileSync(path.join(here,'paywall-sandbox.js'),'utf8'));
+  console.log('StoreKit webbrug geïnstalleerd; aankopen blijven UIT.');
 } else {
   const delegate='ios/App/App/AppDelegate.swift';
   const storyboard='ios/App/App/Base.lproj/Main.storyboard';
-  let swift=read(delegate), xml=read(storyboard);
-  const marker='// JAR-SK2-SANDBOX';
-  if(!swift.includes(marker)){
-    if(!/import Capacitor\b/.test(swift)||!/class AppDelegate\b/.test(swift))throw Error('Onverwachte AppDelegate, native code niet aangepast');
+  let swift=read(delegate),xml=read(storyboard);
+  if(!swift.includes('// JAR-SK2-SANDBOX')){
+    if(!/import Capacitor\b/.test(swift)||!/class AppDelegate\b/.test(swift))
+      throw Error('Onverwachte AppDelegate');
     const plugin=fs.readFileSync(path.join(here,'JARStoreKitSandbox.swift'),'utf8');
-    if(!plugin.includes(marker))throw Error('Swift-bestand mist veiligheidsmarkering');
-    swift+='\n'+plugin+'\n';
-    write(delegate,swift);
+    if(!plugin.includes('// JAR-SK2-SANDBOX'))throw Error('StoreKit-veiligheidsmarkering ontbreekt');
+    save(delegate,swift+'\n'+plugin+'\n');
   }
   if(xml.includes('customClass="CAPBridgeViewController"')){
-    const matches=xml.match(/customClass="CAPBridgeViewController"/g)||[];
-    if(matches.length!==1)throw Error('Onverwacht aantal storyboard bridge controllers');
+    if((xml.match(/customClass="CAPBridgeViewController"/g)||[]).length!==1)
+      throw Error('Onverwachte Capacitor-storyboard');
     xml=xml.replace(/customClass="CAPBridgeViewController"(?: customModule="Capacitor")?/,
-       'customClass="JARBridgeViewController" customModule="App"');
-    write(storyboard,xml);
+      'customClass="JARBridgeViewController" customModule="App"');
+    save(storyboard,xml);
   }
-  if(!xml.includes('customClass="JARBridgeViewController"'))throw Error('Storyboard registreert JARBridgeViewController niet');
-  console.log('StoreKit 2 bridged plugin geregistreerd in de iPhone-app.');
+  if(!xml.includes('customClass="JARBridgeViewController"'))
+    throw Error('De native StoreKit-brug is niet aan de storyboard gekoppeld');
+  console.log('Native StoreKit 2-plugin in iOS-brug geregistreerd.');
 }
