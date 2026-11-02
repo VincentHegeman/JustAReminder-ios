@@ -8,8 +8,12 @@
   const catalogue = window.JAR_APPLE_PRODUCTS;
   const native = !!window.Capacitor?.isNativePlatform?.();
   const plugin = native && (window.Capacitor.Plugins?.JARStoreKit || window.Capacitor.registerPlugin?.('JARStoreKit'));
-  const purchasesEnabled = native && window.JAR_MOBILE_CONFIG?.iosPurchasesReady === true;
   const environment = window.JAR_MOBILE_CONFIG?.iosPurchaseEnvironment === 'Sandbox' ? 'Sandbox' : 'Production';
+  // Sandbox testing is explicitly isolated from the production-purchase release gate.
+  const purchasesEnabled = !!native && (
+    (environment === 'Sandbox' && window.JAR_MOBILE_CONFIG?.iosSandboxPurchasesReady === true) ||
+    (environment === 'Production' && window.JAR_MOBILE_CONFIG?.iosPurchasesReady === true)
+  );
   const prices = new Map();
   const ids = Object.values(catalogue || {}).flatMap(group => typeof group === 'object' && group ? Object.values(group) : []).filter(id => typeof id === 'string');
   let period = 'monthly';
@@ -111,7 +115,7 @@
     try {
       const user = await userAccount();
       const preflight = await server('preflight',{environment,productId});
-      if (!preflight?.ready || preflight?.accountId !== user.id) throw new Error('De betaalserver heeft deze aankoop niet vrijgegeven');
+      if (!preflight?.ready || preflight?.accountId !== user.id || preflight?.environment !== environment) throw new Error('De betaalserver heeft deze aankoop niet vrijgegeven');
       const result = await plugin.purchase({productId,accountId:user.id});
       if (result?.status === 'pending') message('Apple verwerkt deze aankoop nog.');
       else if (result?.status === 'cancelled') message('De aankoop is geannuleerd.');
