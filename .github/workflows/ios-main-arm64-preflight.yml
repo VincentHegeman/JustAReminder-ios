@@ -1,0 +1,55 @@
+name: iOS main arm64 archive preflight (no signing)
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'JARStoreKitSandbox.swift'
+      - 'codemagic.yaml'
+      - 'jar-install-storekit-sandbox.mjs'
+      - 'jar-install-native-push.mjs'
+      - '.github/workflows/ios-main-arm64-preflight.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  archive:
+    name: Build iPhone arm64 archive — unsigned
+    runs-on: macos-26
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify sources and generate Capacitor iOS
+        run: |
+          set -eu
+          echo "Building main commit $(git rev-parse HEAD)"
+          if grep -Fq 'transaction.environment' JARStoreKitSandbox.swift; then
+            echo 'Error: unsupported iOS 16 StoreKit API still present' >&2
+            exit 1
+          fi
+          node installeer-ios-layoutfix.mjs .
+          node fix-family-mobile-forms.mjs .
+          node jar-install-storekit-sandbox.mjs
+          node jar-install-native-push.mjs
+          npm install
+          npx cap add ios --packagemanager SPM
+          npx cap sync ios
+          node jar-install-native-push.mjs --native
+          node jar-install-storekit-sandbox.mjs --native
+          grep -Fq 'signedEnvironmentHint' ios/App/App/AppDelegate.swift
+          ! grep -Fq 'transaction.environment' ios/App/App/AppDelegate.swift
+      - name: Build real iOS device arm64 archive without signing or App Store upload
+        run: |
+          set -o pipefail
+          xcodebuild -project ios/App/App.xcodeproj \
+            -scheme App -configuration Release \
+            -destination 'generic/platform=iOS' \
+            -archivePath /tmp/JAR-Main-unsigned.xcarchive \
+            CODE_SIGNING_ALLOWED=NO archive > /tmp/justareminder-main-arm64.log 2>&1 || {
+              echo 'Xcode build errors:'
+              grep -n -E 'error:|ARCHIVE FAILED|note: add|failed' /tmp/justareminder-main-arm64.log | tail -n 100 || true
+              exit 1
+            }
+          echo 'MAIN iPhone arm64 archive succeeded. No code signing and no TestFlight submission.'
