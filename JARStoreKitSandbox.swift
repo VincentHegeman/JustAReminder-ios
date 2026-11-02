@@ -20,6 +20,24 @@ public final class JARStoreKitPlugin: CAPPlugin, CAPBridgedPlugin {
         "eu.justareminder.extra50.monthly", "eu.justareminder.extra100.monthly",
         "eu.justareminder.extra150.monthly", "eu.justareminder.extra200.monthly"
     ]
+    // StoreKit Transaction.environment requires iOS 16+, while this app supports iOS 15.
+    // The JWS payload supplies only an environment HINT; Supabase cryptographically verifies
+    // the full signed transaction, app bundle and environment before recording a purchase.
+    // An invalid/missing hint fails closed on the server, never grants rights.
+    private func signedEnvironmentHint(_ signedJWS: String) -> String {
+        let sections = signedJWS.split(separator: ".", omittingEmptySubsequences: false)
+        guard sections.count == 3 else { return "Unknown" }
+        var data64 = String(sections[1])
+            .replacingOccurrences(of: "-", with: "+")
+            .replacingOccurrences(of: "_", with: "/")
+        data64 += String(repeating: "=", count: (4 - data64.count % 4) % 4)
+        guard let decoded = Data(base64Encoded: data64),
+              let json = try? JSONSerialization.jsonObject(with: decoded) as? [String: Any],
+              let environment = json["environment"] as? String,
+              environment == "Sandbox" || environment == "Production"
+        else { return "Unknown" }
+        return environment
+    }
     @objc public func getProducts(_ call: CAPPluginCall) {
         let ids = (call.getArray("productIds", String.self) ?? []).filter { allowedIds.contains($0) }
         guard !ids.isEmpty else { call.reject("Geen geldig Apple-product geselecteerd"); return }
@@ -50,7 +68,7 @@ public final class JARStoreKitPlugin: CAPPlugin, CAPBridgedPlugin {
                     switch result {
                     case .verified(let transaction):
                         call.resolve(["status":"verify_on_server", "transactionId":String(transaction.id),
-                                      "productId":transaction.productID, "environment":transaction.environment == .sandbox ? "Sandbox" : "Production", "signedTransaction":result.jwsRepresentation])
+                                      "productId":transaction.productID, "environment":signedEnvironmentHint(result.jwsRepresentation), "signedTransaction":result.jwsRepresentation])
                         // NEVER finish before the backend has proved delivery of paid rights.
                     case .unverified: call.reject("De Apple-transactie is niet geverifieerd")
                     }
@@ -70,7 +88,7 @@ public final class JARStoreKitPlugin: CAPPlugin, CAPBridgedPlugin {
                 for await result in Transaction.currentEntitlements {
                     if case .verified(let transaction) = result, allowedIds.contains(transaction.productID) {
                         transactions.append(["transactionId":String(transaction.id),
-                            "productId":transaction.productID, "environment":transaction.environment == .sandbox ? "Sandbox" : "Production", "signedTransaction":result.jwsRepresentation])
+                            "productId":transaction.productID, "environment":signedEnvironmentHint(result.jwsRepresentation), "signedTransaction":result.jwsRepresentation])
                     }
                 }
                 call.resolve(["transactions":transactions])
@@ -83,7 +101,7 @@ public final class JARStoreKitPlugin: CAPPlugin, CAPBridgedPlugin {
             for await result in Transaction.unfinished {
                 if case .verified(let transaction) = result, allowedIds.contains(transaction.productID) {
                     transactions.append(["transactionId":String(transaction.id),
-                        "productId":transaction.productID, "environment":transaction.environment == .sandbox ? "Sandbox" : "Production", "signedTransaction":result.jwsRepresentation])
+                        "productId":transaction.productID, "environment":signedEnvironmentHint(result.jwsRepresentation), "signedTransaction":result.jwsRepresentation])
                 }
             }
             call.resolve(["transactions":transactions])
