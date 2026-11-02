@@ -6,3 +6,7 @@ verify_jwt = false
 # De app stuurt het Supabase access token mee, login verplicht.
 [functions.jar-apple-verify]
 verify_jwt = true
+
+# Only trusted server/cron requests with the Supabase service-role key are accepted.
+[functions.jar-apple-reconcile]
+verify_jwt = false
