@@ -82,7 +82,10 @@ Deno.serve(async req=>{
    for(const group of groups)for(const item of group.lastTransactions||[]){
     if(!jwsOK(item.signedTransactionInfo))continue;
     const tx=await verify.verifyAndDecodeTransaction(item.signedTransactionInfo);
-    if(tx.originalTransactionId!==sub.original_transaction_id||tx.appAccountToken!==sub.user_id)
+    // Apple's response can include other subscription groups; never attach them
+    // to the chain being reconciled.
+    if(tx.originalTransactionId!==sub.original_transaction_id)continue;
+    if(tx.appAccountToken!==sub.user_id)
       throw Error('Apple subscription account/chain mismatch');
     seen=true;
     let autoRenew: boolean|undefined;let graceExpires:number|undefined;
