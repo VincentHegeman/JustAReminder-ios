@@ -22,6 +22,9 @@ if(!process.argv.includes('--native')){
   }
   const page='www/ios/abonnementen.html';
   let html=read(page);
+  html=html.replace('Testversie zonder aankopen.', 'Sandbox-test zonder echte betalingen.');
+  html=html.replace('Apple-betalingen zijn nog niet gekoppeld en er wordt niets afgeschreven.',
+    'Apple Sandbox-aankopen worden uitsluitend met TestFlight uitgevoerd. Er wordt geen echt geld afgeschreven.');
   const anchor='<script src="paywall.js"></script>';
   if(!html.includes(anchor))throw Error('Abonnementenpagina heeft geen paywall-script');
   if(!html.includes('src="../app-config.js"'))
