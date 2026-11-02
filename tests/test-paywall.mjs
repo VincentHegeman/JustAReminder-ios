@@ -19,7 +19,7 @@ async function exercise(enabled){
  };
  const supabase={createClient(){return {
    auth:{async getUser(){return {data:{user:{id:'11111111-1111-4111-8111-111111111111'}}}}},
-   functions:{async invoke(_name,args){events.push(args.body.action);return {data:args.body.action==='preflight'?{ready:true,accountId:'11111111-1111-4111-8111-111111111111'}:args.body.action==='verify'?{verified:true,recorded:true,rightsReady:true}: {subscriptions:[]}}}}
+   functions:{async invoke(_name,args){events.push(args.body.action);return {data:args.body.action==='preflight'?{ready:true,accountId:'11111111-1111-4111-8111-111111111111'}:args.body.action==='verify'?{verified:true,recorded:true,rightsReady:enabled,sandboxRecorded:true,environment:'Sandbox'}: {subscriptions:[]}}}}
  }}};
  const window={JAR_APPLE_PRODUCTS:{private:{monthly:'eu.justareminder.private.monthly.v2',yearly:'eu.justareminder.private.yearly'},premium:{monthly:'eu.justareminder.premium.monthly',yearly:'eu.justareminder.premium.yearly'},extras:{'50':'eu.justareminder.extra50.monthly'}},
  Capacitor:{isNativePlatform:()=>true,Plugins:{JARStoreKit:plugin}},JAR_MOBILE_CONFIG:{iosPurchasesReady:enabled,iosPurchaseEnvironment:'Sandbox'},supabase,JAR_iOS_session:{authOptions:()=>({})}};
