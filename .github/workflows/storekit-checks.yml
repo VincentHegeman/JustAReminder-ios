@@ -29,3 +29,36 @@ jobs:
           node tests/test-bridge.mjs
           node tests/test-paywall.mjs
           node tests/test-server-security.mjs
+
+  ios-native-compile:
+    name: Compile iOS app (no signing, no TestFlight upload)
+    runs-on: macos-26
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Prepare Capacitor 8 and native JustAReminder plugins
+        run: |
+          set -eu
+          node installeer-ios-layoutfix.mjs .
+          node fix-family-mobile-forms.mjs .
+          node jar-install-storekit-sandbox.mjs
+          node jar-install-native-push.mjs
+          npm install
+          npx cap add ios --packagemanager SPM
+          npx cap sync ios
+          node jar-install-native-push.mjs --native
+          node jar-install-storekit-sandbox.mjs --native
+      - name: Compile iOS 15-compatible app without certificate or TestFlight upload
+        run: |
+          set -o pipefail
+          xcodebuild -project ios/App/App.xcodeproj \
+            -scheme App -configuration Release \
+            -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' \
+            CODE_SIGNING_ALLOWED=NO build > /tmp/justareminder-xcodebuild.log 2>&1 || {
+              grep -n -E 'error:|failed|BUILD FAILED|note: add' /tmp/justareminder-xcodebuild.log | tail -n 65 || true
+              exit 1
+            }
+          echo 'App compiled for iOS Simulator without signing; no TestFlight upload.'
