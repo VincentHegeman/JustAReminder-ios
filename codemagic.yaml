@@ -18,6 +18,11 @@ workflows:
       - name: Installeer layoutfix, Family-invoerfix en native pushplugin
         script: |
           set -eu
+          echo "JAR BRONCODE: branch=${CM_BRANCH:-onbekend} commit=$(git rev-parse --short HEAD)"
+          if grep -Fq 'transaction.environment' JARStoreKitSandbox.swift; then
+            echo "FOUT: oude StoreKit-code gevonden; iOS 15 Swift compileert niet." >&2
+            exit 1
+          fi
           node installeer-ios-layoutfix.mjs .
           node test-ios-layoutfix.mjs .
           node fix-family-mobile-forms.mjs .
@@ -44,6 +49,14 @@ workflows:
           test -f ios/App/App.xcodeproj/project.pbxproj
           node jar-install-native-push.mjs --native
           node jar-install-storekit-sandbox.mjs --native
+          if grep -Fq 'transaction.environment' ios/App/App/AppDelegate.swift; then
+            echo "FOUT: oude StoreKit-code in AppDelegate. Stop voor IPA-archief." >&2
+            exit 1
+          fi
+          grep -Fq 'signedEnvironmentHint' ios/App/App/AppDelegate.swift || {
+            echo "FOUT: iOS 15 StoreKit-correctie niet geïnstalleerd." >&2
+            exit 1
+          }
           # Gebruik de oplopende Codemagic-projectteller, nooit opnieuw Apple build 5.
           case "${PROJECT_BUILD_NUMBER:-}" in
             ''|*[!0-9]*) echo 'Ongeldige PROJECT_BUILD_NUMBER' >&2; exit 1 ;;
