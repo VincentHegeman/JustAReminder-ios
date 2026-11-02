@@ -92,7 +92,9 @@
     if (!transaction?.signedTransaction || !transaction?.transactionId) throw new Error('Apple-transactiegegevens ontbreken');
     const env = transaction.environment === 'Sandbox' ? 'Sandbox' : 'Production';
     const result = await server('verify', {environment:env,signedTransaction:transaction.signedTransaction});
-    if (!result?.verified || !result?.recorded || result?.rightsReady !== true) {
+    if (!result?.verified || !result?.recorded ||
+      (env === 'Production' && result?.rightsReady !== true) ||
+      (env === 'Sandbox' && result?.sandboxRecorded !== true)) {
       throw new Error('De aankoop is nog niet volledig bevestigd. De server heeft geen betaalde rechten vrijgegeven.');
     }
     // Only after confirmed server delivery. Swift itself never grants client-side rights.
@@ -115,7 +117,9 @@
       else if (result?.status === 'cancelled') message('De aankoop is geannuleerd.');
       else if (result?.status === 'verify_on_server') {
         await verifyOnServer(result);
-        message('Je Apple-abonnement is geverifieerd. De server heeft je rechten bijgewerkt.');
+        message(result.environment === 'Sandbox'
+          ? 'Apple Sandbox-aankoop geverifieerd en geregistreerd. Er zijn geen echte betaalrechten aangepast.'
+          : 'Je Apple-abonnement is geverifieerd. De server heeft je rechten bijgewerkt.');
       } else throw new Error('Onbekend antwoord van Apple');
     } catch (error) {
       message('Aankoop niet afgerond: ' + (error?.message || 'Onbekende fout'));
