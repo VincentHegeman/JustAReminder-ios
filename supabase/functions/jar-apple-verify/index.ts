@@ -51,7 +51,7 @@ Deno.serve(async req=>{
   // Signed JWS must be checked even when purchase switches are off, to allow
   // restoring prior subscriptions after the switch has been turned off.
   let decoded;
-  try{decoded=awaitverifier(env).verifyAndDecodeTransaction(body.signedTransaction)}
+  try{decoded=await verifier(env).verifyAndDecodeTransaction(body.signedTransaction)}
   catch{return respond({error:'Apple-handtekening kon niet worden geverifieerd'},422)}
   if(String(decoded.appAccountToken||'').toLowerCase()!==user.id.toLowerCase())
     return respond({error:'De Apple-aankoop is gekoppeld aan een ander JustAReminder-account'},403);
