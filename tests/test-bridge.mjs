@@ -6,6 +6,10 @@ const yaml=fs.readFileSync('codemagic.yaml','utf8');
 assert(swift.includes('try await AppStore.sync()'),'Must support AppStore.sync');
 assert(swift.includes('Transaction.currentEntitlements'),'Missing Apple restore');
 assert(swift.includes('Transaction.unfinished'),'Missing interrupted purchase recovery');
+assert(!swift.includes('transaction.environment'), 'Transaction.environment is iOS 16+; iOS 15 must compile');
+assert(swift.includes('signedEnvironmentHint(result.jwsRepresentation)'), 'Use signed-JWS environment hint for iOS 15');
+assert(swift.includes('environment == "Sandbox" || environment == "Production"'), 'Do not accept arbitrary environment');
+
 assert(swift.includes('await transaction.finish()'),'Missing server-ack finish');
 assert(!swift.includes('jar_user_plan_entitlements'),'Swift must not grant Supabase rights');
 assert(installer.includes('JARBridgeViewController'),'Capacitor subclass required');
