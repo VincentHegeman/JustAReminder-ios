@@ -2,6 +2,30 @@
 import {importPKCS8, SignJWT} from 'npm:jose@6.2.14';
 import {createClient} from 'npm:@supabase/supabase-js@2.57.0';
 const reply=(body:unknown,status=200)=>Response.json(body,{status,headers:{'Cache-Control':'no-store'}});
+
+function normalizeAppleKey(raw:string|undefined):string {
+ if(!raw||!raw.trim())throw Error('APPLE_IAP_PRIVATE_KEY is missing');
+ let value=raw.trim();
+ if(value.startsWith('"')&&value.endsWith('"')){
+  try {const parsed=JSON.parse(value);if(typeof parsed==='string')value=parsed.trim()}catch{/* literal PEM */}
+ }
+ value=value.replace(/\\r\\n/g,'\n').replace(/\\n/g,'\n').replace(/\r\n/g,'\n');
+ if(!value.includes('-----BEGIN PRIVATE KEY-----')){
+  const compact=value.replace(/\s/g,'');
+  if(/^[A-Za-z0-9+/]+={0,2}$/.test(compact)){
+   try {
+    const plain=atob(compact);
+    if(plain.includes('-----BEGIN PRIVATE KEY-----'))value=plain.trim();
+    else if(plain.charCodeAt(0)===0x30)
+      value='-----BEGIN PRIVATE KEY-----\n'+compact.match(/.{1,64}/g)?.join('\n')+'\n-----END PRIVATE KEY-----';
+   }catch{/* report invalid format below */}
+  }
+ }
+ if(!value.includes('-----BEGIN PRIVATE KEY-----')||!value.includes('-----END PRIVATE KEY-----'))
+  throw Error('APPLE_IAP_PRIVATE_KEY not in Apple PKCS#8 .p8 PEM format');
+ return value;
+}
+
 type Attempt={sendAttemptResult?:string};
 Deno.serve(async(req:Request)=>{
  if(req.method!=='POST')return reply({error:'POST only'},405);
@@ -20,7 +44,7 @@ Deno.serve(async(req:Request)=>{
   const kid=Deno.env.get('APPLE_IAP_KEY_ID')?.trim();
   const issuer=Deno.env.get('APPLE_IAP_ISSUER_ID')?.trim();
   const bundle=Deno.env.get('APPLE_IAP_BUNDLE_ID')?.trim();
-  const pem=Deno.env.get('APPLE_IAP_PRIVATE_KEY')?.replace(/\\n/g,'\n').trim();
+  const pem=normalizeAppleKey(Deno.env.get('APPLE_IAP_PRIVATE_KEY'));
   if(!kid||!issuer||bundle!=='eu.justareminder.app'||!pem)
    throw Error('Apple IAP API credentials missing or bundle ID mismatch');
   const key=await importPKCS8(pem,'ES256');
