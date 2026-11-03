@@ -2,6 +2,7 @@
 <script src="../ios/native-session.js"></script>
 <script src="../ios/native-navigation.js"></script>
 <script src="../ios/native-fixes.js"></script>
+<script src="../ios/world-locale.js"></script>
 <link rel="stylesheet" href="../ios/native-fixes.css"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="color-scheme" content="light"><title>JustAReminder | Account aanmaken</title><style>
 :root{--ink:#394c54;--deep:#345b68;--accent:#467b80;--cream:#fffaf3;--peach:#fff0e6;--mint:#e7f4ed;--butter:#fff4ce;--lilac:#f1eafa;--blue:#e5f2f8;--stroke:#eee6d9;--muted:#6b7776}
 *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--cream);color:var(--ink);font-family:'Trebuchet MS',Verdana,Arial,sans-serif;font-size:16px;line-height:1.6}button,input,select{font:inherit}button{cursor:pointer}a{color:var(--deep)}
@@ -93,7 +94,7 @@ const fromQuery=wanted.get('mode');
 if(['register','reset','newpass'].includes(fromQuery))authMode=fromQuery;
 if(wanted.get('account_deleted')==='1')setTimeout(()=>message('Je account is verwijderd.'),0);
 if(wanted.get('error_description'))setTimeout(()=>message(wanted.get('error_description'),'error'),0);
-try{const stored=localStorage.getItem('jar_language');$('language').value=codes.includes(stored)?stored:'nl';}catch(_e){$('language').value='nl';}
+try{const stored=localStorage.getItem('jar_language');const choice=window.JAR_WORLD_LOCALE.pick(stored,null);$('language').value=codes.includes(choice)?choice:'en';}catch(_e){$('language').value='en';}
 if(client){
  client.auth.onAuthStateChange((event,session)=>{if(event==='PASSWORD_RECOVERY'){setMode('newpass');}});
 }
