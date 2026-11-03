@@ -4,6 +4,7 @@
 <script src="../ios/native-session.js"></script>
 <script src="../ios/native-navigation.js"></script>
 <script src="../ios/native-fixes.js"></script>
+<script src="../ios/world-locale.js"></script>
 <link rel="stylesheet" href="../ios/native-fixes.css">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover">
@@ -103,7 +104,7 @@ function setFamilyLoginLanguage(code){
 function initFamilyLoginLanguages(){
   const picker=document.getElementById('jarLanguage');
   picker.innerHTML=Object.entries(FAMILY_LOGIN_TRANSLATIONS).map(([k,d])=>'<option value="'+k+'">'+d.native+'</option>').join('');
-  setFamilyLoginLanguage(localStorage.getItem('jar_language')||'nl');
+  setFamilyLoginLanguage(window.JAR_WORLD_LOCALE.pick(localStorage.getItem('jar_language'),null));
 }
 initFamilyLoginLanguages();
 const loginForm = document.getElementById("loginForm");
