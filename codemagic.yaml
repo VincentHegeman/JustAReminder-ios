@@ -35,8 +35,10 @@ workflows:
           node jar-test-storekit-sandbox.mjs
           node tests/test-bridge.mjs
           node tests/test-paywall.mjs
+          node --check www/ios/world-locale.js
           node tests/test-server-security.mjs
           node tests/test-ios-paywall-safearea.mjs
+          node tests/test-world-locale.mjs
           node jar-install-native-push.mjs
           npm install
           node --check www/ios/native-push.js
