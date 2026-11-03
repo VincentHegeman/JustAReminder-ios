@@ -8,6 +8,10 @@ on:
       - 'JARStoreKitSandbox.swift'
       - 'tests/**'
       - 'www/ios/abonnementen.html'
+      - 'www/ios/world-locale.js'
+      - 'www/index.html'
+      - 'www/prive/dashboard.html'
+      - 'paywall-sandbox.js'
       - 'www/family/family-dashboard.html'
       - 'supabase/functions/**'
       - 'supabase/migrations/**'
@@ -30,8 +34,10 @@ jobs:
           node --check jar-test-storekit-sandbox.mjs
           node tests/test-bridge.mjs
           node tests/test-paywall.mjs
+          node --check www/ios/world-locale.js
           node tests/test-server-security.mjs
           node tests/test-ios-paywall-safearea.mjs
+          node tests/test-world-locale.mjs
 
   ios-native-compile:
     name: Compile iOS app (no signing, no TestFlight upload)
