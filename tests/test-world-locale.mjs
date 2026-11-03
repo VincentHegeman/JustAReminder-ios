@@ -7,6 +7,9 @@ const prive = fs.readFileSync('www/prive/dashboard.html','utf8');
 const family = fs.readFileSync('www/family/family-dashboard.html','utf8');
 const paywall = fs.readFileSync('www/ios/abonnementen.html','utf8');
 const landing = fs.readFileSync('www/index.html','utf8');
+const privateLogin = fs.readFileSync('www/prive/inloggen.html','utf8');
+const privateRegister = fs.readFileSync('www/prive/account.html','utf8');
+const familyLogin = fs.readFileSync('www/family/index.html','utf8');
 const paywallJs = fs.readFileSync('paywall-sandbox.js','utf8');
 const config = fs.readFileSync('www/app-config.js','utf8');
 new vm.Script(world,{filename:'world-locale.js'});
@@ -33,7 +36,7 @@ assert.equal(make('pt-BR',null).pick('',null),'pt','Supported language must work
 assert.equal(make('fr-CA','es').pick('es','fr'),'es','Explicit selection must override profile and device');
 assert.equal(eu.time('99:99','nl'),'99:99','Invalid times must not be reinterpreted');
 
-for (const [path,source] of [['Private',prive],['Family',family],['Paywall',paywall],['Entry',landing]]) {
+for (const [path,source] of [['Private',prive],['Family',family],['Paywall',paywall],['Entry',landing],['Private login',privateLogin],['Private registration',privateRegister],['Family login',familyLogin]]) {
   assert.match(source,/world-locale\.js/,'Missing shared locale module in '+path);
 }
 assert.match(prive,/JAR_WORLD_LOCALE\.populate\(selector\)/,'Private language selector not enabled');
@@ -42,5 +45,7 @@ assert.match(family,/JAR_WORLD_LOCALE\.startFamily\(\)/,'Family UI translations 
 assert.match(family,/JAR_WORLD_LOCALE\.applyFamily\(lang\)/,'Family selected language not applied');
 assert.match(paywall,/JAR_WORLD_LOCALE\.applyPaywall/,'Paywall localization missing');
 assert.match(paywallJs,/JAR_WORLD_LOCALE\?\.paywallText/,'Paywall button labels not localized');
+assert.match(privateLogin,/JAR_WORLD_LOCALE\.pick\(stored,null\)/,'Private login does not detect device language');
+assert.match(familyLogin,/JAR_WORLD_LOCALE\.pick\(localStorage\.getItem/,'Family login does not detect device language');
 assert.match(config,/iosPurchasesReady:\s*false/,'Production Apple purchases must remain OFF');
 console.log('OK: worldwide device locale, country date/time formats, 24 EU languages, English fallback, iOS pages and live payments OFF');
