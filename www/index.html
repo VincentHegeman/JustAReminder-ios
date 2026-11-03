@@ -3,6 +3,19 @@
 <script src="ios/native-session.js"></script>
 <script src="ios/native-navigation.js"></script>
 <script src="ios/native-fixes.js"></script>
+<script src="ios/world-locale.js"></script>
+<script>document.addEventListener('DOMContentLoaded',function(){
+ const world=window.JAR_WORLD_LOCALE,lang=world.pick(localStorage.getItem('jar_language'),null);
+ document.documentElement.lang=lang;
+ if(lang==='nl')return;
+ const en=['What would you like to organize today?','My personal space','Your tasks, schedule and reminders','Our family','Organize and share everything together','Subscriptions','View available plans and current availability','iOS test version · Internet access is required to sign in. iPhone notifications and Apple purchases are tested separately before launch.'];
+ const de=['Was möchtest du heute organisieren?','Mein Privatbereich','Deine Aufgaben, Termine und Erinnerungen','Unsere Familie','Gemeinsam organisieren und verteilen','Abonnements','Tarife und Verfügbarkeit ansehen','iOS-Testversion · Für die Anmeldung ist Internet erforderlich.'];
+ const fr=['Que souhaitez-vous organiser aujourd’hui ?','Mon espace privé','Vos tâches, votre planning et vos rappels','Notre famille','Tout organiser et partager ensemble','Abonnements','Voir les formules et leur disponibilité','Version test iOS · Une connexion Internet est nécessaire.'];
+ const es=['¿Qué quieres organizar hoy?','Mi espacio personal','Tus tareas, planes y recordatorios','Nuestra familia','Organizar y compartir todo en familia','Suscripciones','Ver planes y disponibilidad','Versión de prueba iOS · Se necesita Internet para iniciar sesión.'];
+ const labels=({de,fr,es})[lang]||en;
+ const selectors=['#jarResumeStatus','.choice:nth-of-type(1) b','.choice:nth-of-type(1) span','.choice:nth-of-type(2) b','.choice:nth-of-type(2) span','.choice:nth-of-type(3) b','.choice:nth-of-type(3) span','.note'];
+ selectors.forEach((selector,i)=>{const el=document.querySelector(selector);if(el)el.textContent=labels[i];});
+},{once:true});</script>
 <link rel="stylesheet" href="ios/native-fixes.css">
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#fffaf3"><title>JustAReminder</title><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
