@@ -7,6 +7,8 @@ on:
       - 'jar-test-storekit-sandbox.mjs'
       - 'JARStoreKitSandbox.swift'
       - 'tests/**'
+      - 'www/ios/abonnementen.html'
+      - 'www/family/family-dashboard.html'
       - 'supabase/functions/**'
       - 'supabase/migrations/**'
       - '.github/workflows/storekit-checks.yml'
@@ -29,6 +31,7 @@ jobs:
           node tests/test-bridge.mjs
           node tests/test-paywall.mjs
           node tests/test-server-security.mjs
+          node tests/test-ios-paywall-safearea.mjs
 
   ios-native-compile:
     name: Compile iOS app (no signing, no TestFlight upload)
