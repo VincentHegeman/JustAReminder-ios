@@ -7,6 +7,8 @@
 <script src="../ios/native-session.js"></script>
 <script src="../ios/native-navigation.js"></script>
 <script src="../ios/native-fixes.js"></script>
+<script src="../ios/world-locale.js"></script>
+<script>document.addEventListener("DOMContentLoaded",function(){window.JAR_WORLD_LOCALE.startFamily()},{once:true});</script>
 <link rel="stylesheet" href="../ios/native-fixes.css">
 <script src="../ios/ios-checkout-guard.js"></script>
 
@@ -6623,7 +6625,7 @@ async function initialize(){
   const lang=getCurrentLanguage();
   if(document.getElementById("languageSelect")) languageSelect.value=lang;
   if(document.getElementById("settingsLanguage")) settingsLanguage.value=lang;
-  document.documentElement.lang=lang;
+  window.JAR_WORLD_LOCALE.applyFamily(lang);
 
   await initializeNotifications();
 }
@@ -6716,7 +6718,7 @@ const FAMILY_EU_LANGUAGES = new Set(["nl", "en", "bg", "hr", "cs", "da", "et", "
 function getCurrentLanguage(){
   const local=localStorage.getItem("jar_language");
   const saved=currentProfile?.language;
-  return FAMILY_EU_LANGUAGES.has(local) ? local : FAMILY_EU_LANGUAGES.has(saved) ? saved : "nl";
+  return window.JAR_WORLD_LOCALE.pick(local,saved);
 }
 
 async function changeLanguage(language){
@@ -6734,7 +6736,8 @@ async function changeLanguage(language){
 
   if(error) console.warn("Taal opslaan mislukt:",error);
 
-  document.documentElement.lang=lang;
+  window.JAR_WORLD_LOCALE.applyFamily(lang);
+  if(typeof renderCalendarMonth==="function")renderCalendarMonth();
   showToast(lang==="nl" ? "Taal opgeslagen." : "Language preference saved.");
 }
 
@@ -7511,7 +7514,7 @@ function renderTodayTogether(){
   togetherTaskCount.textContent=openTasks.length;
   togetherUnreadCount.textContent=unread;
 
-  todayTogetherDate.textContent=new Date().toLocaleDateString("nl-NL",{
+  todayTogetherDate.textContent=new Date().toLocaleDateString(window.JAR_WORLD_LOCALE.locale(getCurrentLanguage()),{
     weekday:"long",
     day:"numeric",
     month:"long"
@@ -7553,7 +7556,7 @@ function renderCalendarMonth(){
   const year=calendarDate.getFullYear();
   const month=calendarDate.getMonth();
 
-  calendarTitle.textContent=new Date(year,month,1).toLocaleDateString("nl-NL",{
+  calendarTitle.textContent=new Date(year,month,1).toLocaleDateString(window.JAR_WORLD_LOCALE.locale(getCurrentLanguage()),{
     month:"long",
     year:"numeric"
   });
@@ -8114,7 +8117,7 @@ function formatMessageDate(value){
 
   const date=new Date(value);
 
-  return date.toLocaleString("nl-NL",{
+  return date.toLocaleString(window.JAR_WORLD_LOCALE.locale(getCurrentLanguage()),{
     day:"2-digit",
     month:"short",
     hour:"2-digit",
@@ -9438,7 +9441,7 @@ function jarRenderFamilyActivity(){
   }
   root.innerHTML=jarFamilyActivity.map(a=>{
     const who=a.actor_id?getMemberName(a.actor_id):'Een voormalig gezinslid';
-    const date=new Date(a.created_at).toLocaleString('nl-NL',{dateStyle:'medium',timeStyle:'short'});
+    const date=new Date(a.created_at).toLocaleString(window.JAR_WORLD_LOCALE.locale(getCurrentLanguage()),{dateStyle:'medium',timeStyle:'short'});
     const detail=a.details==='Gezamenlijk item'?'':a.details;
     return `<div class="jar-collab-activity-entry"><div class="jar-collab-activity-dot" aria-hidden="true"></div><div>
       <strong>${escapeHtml(who)}</strong> ${escapeHtml(JAR_ACTIVITY_WORDS[a.action]||'heeft iets aangepast')}
@@ -9501,15 +9504,15 @@ function jarRenderExtendedCalendar(){
   const days=jarCalendarView==='week'?7:1;
   const end=new Date(start);end.setDate(start.getDate()+days-1);
   calendarTitle.textContent=days===1
-    ? start.toLocaleDateString('nl-NL',{weekday:'long',day:'numeric',month:'long',year:'numeric'})
-    : `${start.toLocaleDateString('nl-NL',{day:'numeric',month:'short'})} – ${end.toLocaleDateString('nl-NL',{day:'numeric',month:'short',year:'numeric'})}`;
+    ? start.toLocaleDateString(window.JAR_WORLD_LOCALE.locale(getCurrentLanguage()),{weekday:'long',day:'numeric',month:'long',year:'numeric'})
+    : `${start.toLocaleDateString(window.JAR_WORLD_LOCALE.locale(getCurrentLanguage()),{day:'numeric',month:'short'})} – ${end.toLocaleDateString(window.JAR_WORLD_LOCALE.locale(getCurrentLanguage()),{day:'numeric',month:'short',year:'numeric'})}`;
   let out='';
   for(let d=0;d<days;d++){
     const dt=new Date(start);dt.setDate(start.getDate()+d);
     const day=calendarDateKey(dt);
     const items=reminders.filter(r=>!r.afgerond && r.datum===day && jarCalendarMemberMatches(r))
       .sort((a,b)=>String(a.tijd||'').localeCompare(String(b.tijd||'')));
-    out+=`<div class="jar-cal-day-block"><div class="jar-cal-day-head"><strong>${escapeHtml(dt.toLocaleDateString('nl-NL',{weekday:'long',day:'numeric',month:'long'}))}</strong><span class="hint">${items.length} item${items.length===1?'':'s'}</span></div>`;
+    out+=`<div class="jar-cal-day-block"><div class="jar-cal-day-head"><strong>${escapeHtml(dt.toLocaleDateString(window.JAR_WORLD_LOCALE.locale(getCurrentLanguage()),{weekday:'long',day:'numeric',month:'long'}))}</strong><span class="hint">${items.length} item${items.length===1?'':'s'}</span></div>`;
     out+=items.length?items.map(r=>{
       const color=getReminderColor(r);
       const time=r.tijd?r.tijd.slice(0,5):'Hele dag';
@@ -9965,7 +9968,7 @@ function jarBetaAnalyze(){
 function jarBetaRepeatChanged(){
  const v=jarBeta$('jarBetaRepeat').value,d=jarBeta$('jarBetaDate').value,field=jarBeta$('jarBetaRepeatHint');
  if(v==='geen')field.textContent='Eenmalig: deze taak of herinnering wordt direct opgeslagen.';
- else if(v==='wekelijks')field.textContent='Elke week op '+(d?new Date(d+'T12:00:00').toLocaleDateString('nl-NL',{weekday:'long'}):'de geselecteerde weekdag')+'. Na afvinken komt de volgende taak.';
+ else if(v==='wekelijks')field.textContent='Elke week op '+(d?new Date(d+'T12:00:00').toLocaleDateString(window.JAR_WORLD_LOCALE.locale(getCurrentLanguage()),{weekday:'long'}):'de geselecteerde weekdag')+'. Na afvinken komt de volgende taak.';
  else if(v==='maandelijks')field.textContent='Elke maand op dezelfde dag. Voor de 29e, 30e of 31e gebruiken we in kortere maanden de laatste dag.';
  else if(v==='jaarlijks')field.textContent='Jaarlijks op dezelfde kalenderdatum. 29 februari wordt op niet-schrikkeljaren 28 februari.';
  else field.textContent='Na afronden wordt automatisch de eerstvolgende geplande taak klaargezet. De einddatum is optioneel.';
@@ -10098,7 +10101,7 @@ function jarBetaRenderSchedules(){
   const title=document.createElement('strong');title.textContent=p.title;
   const copy=document.createElement('p');copy.textContent=jarBetaScheduleLabel(p)+' · '+String(p.time_of_day||'').slice(0,5);
   const badges=document.createElement('div');badges.className='jar-recurring-meta';
-  for(const value of [p.active?'Actief':'Gestopt',p.end_date?'Tot '+new Date(p.end_date+'T12:00:00').toLocaleDateString('nl-NL'):'Geen einddatum',p.visibility==='private'?'Privé':p.visibility==='selected'?'Geselecteerde leden':'Hele gezin']){
+  for(const value of [p.active?'Actief':'Gestopt',p.end_date?'Tot '+new Date(p.end_date+'T12:00:00').toLocaleDateString(window.JAR_WORLD_LOCALE.locale(getCurrentLanguage())):'Geen einddatum',p.visibility==='private'?'Privé':p.visibility==='selected'?'Geselecteerde leden':'Hele gezin']){
    const badge=document.createElement('span');badge.textContent=value;badges.append(badge);
   }
   card.append(title,copy,badges);
@@ -10362,8 +10365,8 @@ window.jarFamilyFullTodoAdd=async function(ev){
  finally{jarFamilyTodoBusy=false;if(button)button.disabled=false;}
 };
 window.jarFamilyCheckPushStatus=async function(){const n=document.getElementById('jarHomePushState');if(n)n.textContent='Pushregistratie wordt gecontroleerd…';try{await jarPushRunChecks();const text=document.getElementById('jarPushStatusLabel')?.textContent||'Niet bevestigd';if(n)n.textContent=text;const dot=document.getElementById('jarHomePushDot');dot?.classList.toggle('is-unknown',false);}catch(e){if(n)n.textContent='Kan pushstatus niet controleren';}};
-window.jarFamilyCheckSubscriptionStatus=async function(){const n=document.getElementById('jarHomeSubState');if(n)n.textContent='Family-rechten worden opgehaald…';try{await loadFamilyUsage();if(currentFamily?.owner_id===currentUser?.id)await jarFamilyMollieRefresh(false);renderFamilySubscription();const s=familyUsage;const message=s.subscriptionReady?(s.paid?'Family Premium · '+s.task_limit+' plekken':'Family Gratis · '+s.task_limit+' plekken'):'Status niet bevestigd in Supabase';if(n)n.textContent=message;const output=document.getElementById('jarSubscriptionStatusText');if(output)output.textContent=message+(jarFamilyMollie?.error?' · Mollie-check: '+jarFamilyMollie.error:'');const when=document.getElementById('jarSubscriptionStatusWhen');if(when)when.textContent='Gecontroleerd: '+new Date().toLocaleTimeString('nl-NL');}catch(e){if(n)n.textContent='Controle mislukt (geen rechten gewijzigd)';const output=document.getElementById('jarSubscriptionStatusText');if(output)output.textContent=String(e.message||e);}};
-function init(){document.body.dataset.familyScreen='all';const e=document.getElementById('jar26TodayDate');if(e)e.textContent='JULLIE PLANNING · '+new Date().toLocaleDateString('nl-NL',{weekday:'long',day:'numeric',month:'long'}).toUpperCase();
+window.jarFamilyCheckSubscriptionStatus=async function(){const n=document.getElementById('jarHomeSubState');if(n)n.textContent='Family-rechten worden opgehaald…';try{await loadFamilyUsage();if(currentFamily?.owner_id===currentUser?.id)await jarFamilyMollieRefresh(false);renderFamilySubscription();const s=familyUsage;const message=s.subscriptionReady?(s.paid?'Family Premium · '+s.task_limit+' plekken':'Family Gratis · '+s.task_limit+' plekken'):'Status niet bevestigd in Supabase';if(n)n.textContent=message;const output=document.getElementById('jarSubscriptionStatusText');if(output)output.textContent=message+(jarFamilyMollie?.error?' · Mollie-check: '+jarFamilyMollie.error:'');const when=document.getElementById('jarSubscriptionStatusWhen');if(when)when.textContent='Gecontroleerd: '+new Date().toLocaleTimeString(window.JAR_WORLD_LOCALE.locale(getCurrentLanguage()));}catch(e){if(n)n.textContent='Controle mislukt (geen rechten gewijzigd)';const output=document.getElementById('jarSubscriptionStatusText');if(output)output.textContent=String(e.message||e);}};
+function init(){document.body.dataset.familyScreen='all';const e=document.getElementById('jar26TodayDate');if(e)e.textContent='JULLIE PLANNING · '+new Date().toLocaleDateString(window.JAR_WORLD_LOCALE.locale(getCurrentLanguage()),{weekday:'long',day:'numeric',month:'long'}).toUpperCase();
  const input=document.getElementById('searchInput');if(input)input.addEventListener('input',()=>{if(currentSection==='all'&&input.value.trim())jarFamilyGo('mine');else renderReminders();});
  const oldBtn=document.getElementById('jarBetaToggle');if(oldBtn)oldBtn.setAttribute('aria-expanded','true');
  const beta=document.getElementById('jarBetaWorkspace');if(beta){beta.classList.add('is-open');beta.setAttribute('aria-hidden','false');}
@@ -10390,7 +10393,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 (function(){'use strict';
  let pushBusy=false,billingBusy=false,filter='open';
  const $=id=>document.getElementById(id);
- const time=()=>new Intl.DateTimeFormat('nl-NL',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit',second:'2-digit'}).format(new Date());
+ const time=()=>new Intl.DateTimeFormat(window.JAR_WORLD_LOCALE.locale(getCurrentLanguage()),{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit',second:'2-digit'}).format(new Date());
  function text(id,t){const n=$(id);if(n)n.textContent=t;}
  function homeStatus(which,s,state){text(which==='push'?'jarHomePushState':'jarHomeSubState',s);const dot=$(which==='push'?'jarHomePushDot':'jarHomeSubDot');if(dot)dot.className='jar-status-indicator is-'+state;}
  function btnBusy(selector,busy){document.querySelectorAll(selector).forEach(b=>{b.disabled=busy;b.textContent=busy?'Controleren…':'Status controleren';});}
