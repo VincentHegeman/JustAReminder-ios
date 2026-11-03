@@ -1,6 +1,6 @@
 # JustAReminder — iOS TestFlight met APNs, Family-fix en StoreKit-voorbereiding.
-# Publieke App Store-publicatie is uitgeschakeld. StoreKit-aankopen blijven uit.
-# De native StoreKit-plugin toont alleen producten en herstelinformatie tot backendrechten klaar zijn.
+# Publieke App Store-publicatie is uitgeschakeld. Alleen TestFlight-Sandbox aankopen zijn toegestaan.
+# Productieaankopen blijven uit en de backend verifieert elk Apple-aankoopbewijs.
 workflows:
   ios-ipa-controle:
     name: JustAReminder - Family-fix en StoreKit-sandboxfundament (TestFlight)
@@ -36,6 +36,7 @@ workflows:
           node tests/test-bridge.mjs
           node tests/test-paywall.mjs
           node tests/test-server-security.mjs
+          node tests/test-ios-paywall-safearea.mjs
           node jar-install-native-push.mjs
           npm install
           node --check www/ios/native-push.js
