@@ -5,6 +5,7 @@
 (function () {
   'use strict';
   const $ = id => document.getElementById(id);
+  const translate = text => window.JAR_WORLD_LOCALE?.paywallText(String(text)) || String(text);
   const catalogue = window.JAR_APPLE_PRODUCTS;
   const native = !!window.Capacitor?.isNativePlatform?.();
   const plugin = native && (window.Capacitor.Plugins?.JARStoreKit || window.Capacitor.registerPlugin?.('JARStoreKit'));
@@ -40,7 +41,7 @@
       ['premium-price', 'premium', period === 'monthly' ? '€ 9,99' : '€ 99,99'],
     ]) {
       const host = $(element);
-      if (host) host.textContent = (prices.get(catalogue?.[tier]?.[period]) || fallback) + (period === 'monthly' ? ' / maand' : ' / jaar');
+      if (host) host.textContent = (prices.get(catalogue?.[tier]?.[period]) || fallback) + translate(period === 'monthly' ? ' / maand' : ' / jaar');
     }
     const bundle = $('bundle');
     if (bundle) for (const option of bundle.options) {
@@ -51,12 +52,12 @@
     }
     for (const btn of choiceButtons) {
       btn.disabled = busy || !purchasesEnabled;
-      btn.textContent = purchasesEnabled ? 'Kies abonnement' : 'Nog niet beschikbaar';
+      btn.textContent = translate(purchasesEnabled ? 'Kies abonnement' : 'Nog niet beschikbaar');
     }
     const extra = $('bundleInfo');
     if (extra) {
       extra.disabled = busy || !purchasesEnabled;
-      extra.textContent = purchasesEnabled ? 'Kies uitbreiding' : 'Nog niet beschikbaar';
+      extra.textContent = translate(purchasesEnabled ? 'Kies uitbreiding' : 'Nog niet beschikbaar');
     }
   }
   function supabaseClient() {
