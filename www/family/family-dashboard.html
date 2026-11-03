@@ -8979,6 +8979,15 @@ function jarWizValidateStep(mode,pos){
       return false;
     }
   }
+  // Een Family-item zonder datum of tijd kan nooit een iPhone-push krijgen.
+  // Blokkeer alleen wanneer een echte melding is gekozen; taken zonder melding
+  // mogen gewoon zonder planning worden opgeslagen.
+  if(mode==='reminder' && pos===3 &&
+     Number(jarWizValue('notificationMinutes'))>=0 &&
+     (!jarWizValue('dateInput') || !jarWizValue('timeInput'))){
+    showToast('Voor een pushmelding zijn datum én tijd verplicht. Kies deze of zet Melding op Geen melding.');
+    return false;
+  }
   if(mode==='routine' && pos===2 && !jarWizValue('routineTime')){
     document.getElementById('routineTime').focus();
     showToast('Kies een tijd voor je routine.'); return false;
