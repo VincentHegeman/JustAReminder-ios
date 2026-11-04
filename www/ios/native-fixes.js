@@ -145,21 +145,41 @@
     window.addEventListener('offline', updateConnectionBanner);
     updateConnectionBanner();
 
+    // VisualViewport is not reliable by itself in every iOS WKWebView keyboard
+    // mode. Combine it with Capacitor Keyboard events and account for native
+    // resizing, so keyboard height is never subtracted twice.
+    var nativeKeyboardHeight = 0;
+    var unoccludedWindowHeight = window.innerHeight;
+    var keyboardFocusInWizard = false;
+    function isKeyboardField(node) {
+      return !!(node && node.matches && node.matches('textarea, input:not([type=checkbox]):not([type=radio]):not([type=date]):not([type=time]):not([type=hidden])'));
+    }
     function updateVisualHeight() {
       var v = window.visualViewport;
-      var h = v ? v.height : window.innerHeight;
-      if (h && h > 180) {
-        var value = Math.round(h) + 'px';
-        if (root.style.getPropertyValue('--jar-visible-height') !== value) root.style.setProperty('--jar-visible-height', value);
-      }
-      // Raise native modals over the keyboard when WKWebView keeps its old height.
-      var covered = v ? Math.max(0, window.innerHeight - v.height - v.offsetTop) : 0;
-      var inset = Math.round(covered) + 'px';
-      if (root.style.getPropertyValue('--jar-ios-keyboard-bottom') !== inset) root.style.setProperty('--jar-ios-keyboard-bottom', inset);
+      var frame = window.innerHeight;
+      var visualCovered = v ? Math.max(0, frame - v.height - v.offsetTop) : 0;
+      var nativeShrink = Math.max(0, unoccludedWindowHeight - frame);
+      var nativeCovered = nativeKeyboardHeight > 0 ? Math.max(0, nativeKeyboardHeight - nativeShrink) : 0;
+      var covered = Math.max(visualCovered, nativeCovered);
+      if (covered < 24) covered = 0;
+      var visible = Math.max(140, frame - covered);
+      if (v && v.height > 0) visible = Math.min(visible, Math.max(140, v.height));
+      var sizes = {
+        '--jar-visible-height': Math.round(visible) + 'px',
+        '--jar-ios-keyboard-bottom': Math.round(covered) + 'px'
+      };
+      Object.keys(sizes).forEach(function (name) {
+        if (root.style.getPropertyValue(name) !== sizes[name]) root.style.setProperty(name, sizes[name]);
+      });
+      root.classList.toggle('jar-ios-keyboard-open', nativeKeyboardHeight > 0 || covered > 0);
+      if (!nativeKeyboardHeight && !keyboardFocusInWizard && !covered) unoccludedWindowHeight = frame;
     }
     updateVisualHeight();
     window.addEventListener('resize', function(){ updateVisualHeight(); updateContrast(); }, { passive: true });
-    if (window.visualViewport) window.visualViewport.addEventListener('resize', updateVisualHeight, { passive: true });
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', updateVisualHeight, { passive: true });
+      window.visualViewport.addEventListener('scroll', updateVisualHeight, { passive: true });
+    }
 
     // The old web permission button must not claim that native APNs is missing.
     // Reuse the native opt-in, without requesting permission on page load.
@@ -187,18 +207,75 @@
     });
     document.addEventListener('click', function () { window.setTimeout(function(){ taskCopy(); compactHeaderArea(); fixPersonalizationTabs(); }, 0); }, true);
 
-    var keyboard = window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Keyboard;
-    if (keyboard && typeof keyboard.setAccessoryBarVisible === 'function') {
-      Promise.resolve(keyboard.setAccessoryBarVisible({ isVisible: false })).catch(function () {});
+    var cap = window.Capacitor;
+    var keyboard = cap && (cap.Plugins?.Keyboard ||
+      (cap.isPluginAvailable?.('Keyboard') && cap.registerPlugin?.('Keyboard')));
+    function keyboardShow(event) {
+      var value = Number(event && event.keyboardHeight);
+      nativeKeyboardHeight = Number.isFinite(value) && value > 0 ? value : 0;
+      updateVisualHeight();
+      window.setTimeout(keepFocusedInputVisible, 80);
+    }
+    function keyboardHide() {
+      nativeKeyboardHeight = 0;
+      updateVisualHeight();
+      window.setTimeout(function () {
+        // The keyboard-hide animation may not have restored innerHeight yet.
+        unoccludedWindowHeight = Math.max(unoccludedWindowHeight, window.innerHeight);
+        updateVisualHeight();
+      }, 110);
+    }
+    function listenKeyboard(name, handler) {
+      if (!keyboard || typeof keyboard.addListener !== 'function') return;
+      try { Promise.resolve(keyboard.addListener(name, handler)).catch(function () {}); }
+      catch (_) { /* VisualViewport remains a fallback. */ }
+    }
+    listenKeyboard('keyboardWillShow', keyboardShow);
+    listenKeyboard('keyboardDidShow', keyboardShow);
+    listenKeyboard('keyboardWillHide', keyboardHide);
+    listenKeyboard('keyboardDidHide', keyboardHide);
+
+    // A visible, accessible escape hatch is necessary even when iOS does not
+    // emit a viewport resize event: the user can always dismiss the keyboard.
+    var reminderModal = document.getElementById('modalBackdrop');
+    var reminderHeader = reminderModal && reminderModal.querySelector('.wizard-modal .modal-header');
+    if (reminderHeader && !document.getElementById('jar-ios-keyboard-done')) {
+      var done = document.createElement('button');
+      done.id = 'jar-ios-keyboard-done';
+      done.type = 'button';
+      done.textContent = 'Gereed';
+      done.setAttribute('aria-label', 'Toetsenbord sluiten');
+      done.addEventListener('click', function () {
+        var active = document.activeElement;
+        if (isKeyboardField(active)) active.blur();
+        if (keyboard && typeof keyboard.hide === 'function') {
+          Promise.resolve(keyboard.hide()).catch(function () {});
+        }
+        keyboardFocusInWizard = false;
+        root.classList.remove('jar-ios-wizard-field-focus');
+      });
+      reminderHeader.insertBefore(done, reminderHeader.querySelector('.close-button'));
     }
 
-    window.addEventListener('focusin', function (e) {
-      if (e.target && e.target.matches && e.target.matches('input,textarea,select')) {
+    document.addEventListener('focusin', function (e) {
+      if (isKeyboardField(e.target) && reminderModal && reminderModal.contains(e.target)) {
+        keyboardFocusInWizard = true;
+        root.classList.add('jar-ios-wizard-field-focus');
         window.setTimeout(keepFocusedInputVisible, 240);
       }
     });
+    document.addEventListener('focusout', function () {
+      window.setTimeout(function () {
+        keyboardFocusInWizard = isKeyboardField(document.activeElement) &&
+          !!(reminderModal && reminderModal.contains(document.activeElement));
+        root.classList.toggle('jar-ios-wizard-field-focus', keyboardFocusInWizard);
+        updateVisualHeight();
+      }, 50);
+    });
     if (window.visualViewport) {
-      window.visualViewport.addEventListener('resize', function () { window.setTimeout(keepFocusedInputVisible, 90); });
+      window.visualViewport.addEventListener('resize', function () {
+        window.setTimeout(keepFocusedInputVisible, 90);
+      });
     }
 
     var pending = false;
