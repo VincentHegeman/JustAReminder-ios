@@ -9,8 +9,10 @@ const publishable='sb_publishable_ahp4b1jbybZmcQDDkkdNrg_IvbVXZsY';
 const catalogue=window.JAR_APPLE_PRODUCTS;
 const native=!!window.Capacitor?.isNativePlatform?.();
 const api=native&&(window.Capacitor.Plugins?.JARStoreKit||window.Capacitor.registerPlugin?.('JARStoreKit'));
-const canBuy=native&&window.JAR_MOBILE_CONFIG?.iosPurchasesReady===true;
 const environment=window.JAR_MOBILE_CONFIG?.iosPurchaseEnvironment==='Sandbox'?'Sandbox':'Production';
+// TestFlight-only Sandbox testing is a separate gate from real purchase rights.
+const sandboxTest=native&&environment==='Sandbox'&&window.JAR_MOBILE_CONFIG?.iosSandboxTestPurchases===true;
+const canBuy=native&&((environment==='Production'&&window.JAR_MOBILE_CONFIG?.iosPurchasesReady===true)||sandboxTest);
 const productIds=Object.values(catalogue||{}).flatMap(v=>typeof v==='object'?Object.values(v):[]).filter(v=>typeof v==='string');
 const productPrices=new Map();
 const section=document.getElementById('status');
@@ -32,8 +34,8 @@ function render(){
   const price=productPrices.get(key);
   if(price)option.textContent='+'+(option.value.match(/\d+/)||[''])[0]+' herinneringen · '+price+' / maand';
  }
- for(const b of buttons){b.textContent=canBuy?'Kies abonnement':'Nog niet beschikbaar';b.disabled=busy||!canBuy;}
- const extra=id('bundleInfo');if(extra){extra.textContent=canBuy?'Kies uitbreiding':'Nog niet beschikbaar';extra.disabled=busy||!canBuy;}
+ for(const b of buttons){b.textContent=canBuy?(sandboxTest?'Sandbox-test uitvoeren':'Kies abonnement'):'Nog niet beschikbaar';b.disabled=busy||!canBuy;}
+ const extra=id('bundleInfo');if(extra){extra.textContent=canBuy?(sandboxTest?'Sandbox-test uitbreiding':'Kies uitbreiding'):'Nog niet beschikbaar';extra.disabled=busy||!canBuy;}
 }
 function client(){
  if(store)return store;
@@ -118,5 +120,9 @@ id('free')?.addEventListener('click',()=>location.assign('../prive/index.html'))
 for(const b of buttons)b.addEventListener('click',()=>buy(catalogue[b.dataset.plan==='plus'?'private':'premium'][period]));
 id('bundleInfo')?.addEventListener('click',()=>buy('eu.justareminder.'+id('bundle').value));
 id('restorePurchases')?.addEventListener('click',restore);
+if(sandboxTest){
+ const notice=document.querySelector('.notice');
+ if(notice)notice.textContent='Apple Sandbox-test via TestFlight. Een testaankoop kost geen echt geld en geeft geen productierechten. Je bestaande Mollie-abonnement blijft ongewijzigd.';
+}
 render();if(api)void appleProducts();
 })();
