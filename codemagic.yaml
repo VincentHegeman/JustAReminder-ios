@@ -25,6 +25,7 @@ workflows:
           fi
           node installeer-ios-layoutfix.mjs .
           node test-ios-layoutfix.mjs .
+          npm run check:ioskeyboard
           node fix-family-mobile-forms.mjs .
           node test-family-mobile-forms.mjs .
           node jar-install-storekit-sandbox.mjs
