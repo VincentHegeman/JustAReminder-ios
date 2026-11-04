@@ -218,7 +218,8 @@
       nativeKeyboardHeight = 0;
       updateVisualHeight();
       window.setTimeout(function () {
-        unoccludedWindowHeight = window.innerHeight;
+        // The keyboard-hide animation may not have restored innerHeight yet.
+        unoccludedWindowHeight = Math.max(unoccludedWindowHeight, window.innerHeight);
         updateVisualHeight();
       }, 110);
     }
