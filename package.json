@@ -17,7 +17,8 @@
     "audit:release": "node scripts/audit-release.mjs",
     "audit:source": "node scripts/audit-source.mjs",
     "check:navigation": "node scripts/test-ios-navigation.mjs",
-    "check:all": "npm run check && npm run check:iosfix && npm run check:session && npm run check:navigation && npm run audit:source"
+    "check:all": "npm run check && npm run check:iosfix && npm run check:session && npm run check:navigation && npm run audit:source && npm run check:ioskeyboard",
+    "check:ioskeyboard": "node scripts/test-ios-keyboard.mjs"
   },
   "dependencies": {
     "@capacitor/core": "^8.0.0",
