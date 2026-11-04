@@ -145,7 +145,10 @@
   function setup() {
     // Use a permanently visible position on the dashboard; don't place controls
     // inside a hidden route, menu or a modal that users cannot reach.
-    const area = document.querySelector('.content') || document.querySelector('.main');
+    // Native APNs belongs under 'Meer > Instellingen', not above the dashboard.
+    // Both Privé and Family expose a dedicated More grid. Keep a safe fallback.
+    const more = document.querySelector('#jarProdMorePage .jar-prod-more-grid, #jarFamilyMorePage .jar-prod-more-grid');
+    const area = more || document.querySelector('.content') || document.querySelector('.main');
     if (!area || document.getElementById('jar-native-push-controls')) return;
     const section = document.createElement('section');
     section.id = 'jar-native-push-controls';
@@ -170,7 +173,8 @@
     state.textContent = push ? 'Schakel meldingen in om herinneringen op je iPhone te ontvangen.' :
       'Native pushplugin ontbreekt. Deze app moet opnieuw via TestFlight worden geïnstalleerd.';
     section.append(heading, buttons, state);
-    area.insertBefore(section, area.firstChild);
+    if (more) more.appendChild(section);
+    else area.insertBefore(section, area.firstChild);
     let optedIn = false;
     try { optedIn = w.localStorage.getItem(enabledKey) === 'yes'; } catch (_) {}
     if (optedIn && push) setTimeout(() => enable({silent: true}), 800);
