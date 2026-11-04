@@ -119,7 +119,42 @@
     }
   }
 
+  function installLaunchDesign() {
+    // Load after the dashboards' many inline style blocks so the native UI
+    // has one final, predictable cascade. Public website/PWA never reaches here.
+    if (document.getElementById('jar-ios-launch-design')) return;
+    var script = document.querySelector('script[src*="native-fixes.js"]');
+    if (!script || !script.src) return;
+    var link = document.createElement('link');
+    link.id = 'jar-ios-launch-design';
+    link.rel = 'stylesheet';
+    link.href = new URL('launch-design.css', script.src).href;
+    document.head.appendChild(link);
+  }
+
+  function showBuildSource() {
+    // Display the actual embedded Git commit, not a guessed TestFlight version.
+    const more = document.querySelector('#jarProdMorePage .jar-prod-more-grid, #jarFamilyMorePage .jar-prod-more-grid');
+    const source = document.querySelector('script[src*="native-fixes.js"]');
+    if (!more || !source?.src || document.getElementById('jar-ios-build-source')) return;
+    const url = new URL('build-info.json', source.src).href;
+    fetch(url, {cache:'no-store'}).then(response => {
+      if (!response.ok) throw Error('No build stamp');
+      return response.json();
+    }).then(info => {
+      if (!/^[a-f0-9]{40}$/i.test(info?.commit || '')) return;
+      const el = document.createElement('p');
+      el.id = 'jar-ios-build-source';
+      el.className = 'jar-ios-build-meta';
+      el.textContent = 'App-versie · broncode ' + info.commit.slice(0,8) +
+        (Number.isSafeInteger(info.buildNumber) ? ' · build ' + info.buildNumber : '');
+      more.appendChild(el);
+    }).catch(() => {});
+  }
+
   function setup() {
+    installLaunchDesign();
+    showBuildSource();
     document.body.classList.toggle('jar-ios-dashboard-layout',!!document.querySelector('.mobile-header'));
     installedAppUI();
     nativeStatus();
@@ -189,7 +224,7 @@
 
     var keyboard = window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Keyboard;
     if (keyboard && typeof keyboard.setAccessoryBarVisible === 'function') {
-      Promise.resolve(keyboard.setAccessoryBarVisible({ isVisible: false })).catch(function () {});
+      Promise.resolve(keyboard.setAccessoryBarVisible({ isVisible: true })).catch(function () {});
     }
 
     window.addEventListener('focusin', function (e) {

@@ -1,0 +1,298 @@
+/* JustAReminder — iPhone visual refresh for launch candidate, 2026-11-04.
+   Scoped to the installed Capacitor iOS app; website and PWA are unchanged.
+   Works with the existing theme variables rather than changing saved preferences. */
+:root.jar-ios-native {
+  --jar-ios-canvas: var(--prod-bg, #f7f8f5);
+  --jar-ios-paper: var(--prod-surface, #ffffff);
+  --jar-ios-ink: var(--prod-text, #243e3b);
+  --jar-ios-subtle: var(--prod-muted, #647772);
+  --jar-ios-line: var(--prod-border, #dce7e0);
+  --jar-ios-primary: var(--prod-accent, #2d7469);
+  --jar-ios-accent-ink: var(--jar-on-accent, #ffffff);
+}
+:root.jar-ios-native body,
+:root.jar-ios-native body .app,
+:root.jar-ios-native body .main,
+:root.jar-ios-native body .content {
+  background: var(--jar-ios-canvas) !important;
+  color: var(--jar-ios-ink) !important;
+  -webkit-text-size-adjust: 100%;
+}
+:root.jar-ios-native body.jar-ios-dashboard-layout::before { display:none!important; }
+:root.jar-ios-native :is(button,input,textarea,select) { font-family:-apple-system,BlinkMacSystemFont,system-ui,sans-serif; }
+:root.jar-ios-native :is(input,textarea,select) {
+  box-sizing:border-box!important;
+  color:var(--jar-ios-ink)!important;
+  background:var(--jar-ios-paper)!important;
+  border:1px solid var(--jar-ios-line)!important;
+  border-radius:13px!important;
+  font-size:16px!important;
+}
+:root.jar-ios-native :is(input,textarea,select):focus-visible {
+  outline:2px solid var(--jar-ios-primary)!important;
+  outline-offset:1px!important;
+}
+:root.jar-ios-native button:focus-visible,
+:root.jar-ios-native a:focus-visible { outline:3px solid var(--jar-ios-primary)!important; outline-offset:2px!important; }
+:root.jar-ios-native button { -webkit-tap-highlight-color:transparent; }
+:root.jar-ios-native :is(.jar-status-strip,.jar-prod-push-panel) { display:none!important; }
+/* A less cluttered information hierarchy: navigation and content, not developer panels. */
+:root.jar-ios-native .jar26-date,
+:root.jar-ios-native .jar-prod-eyebrow,
+:root.jar-ios-native .jar26-overline {
+  font-size:11px!important;letter-spacing:.11em!important;
+  font-weight:750!important;color:var(--jar-ios-primary)!important;
+}
+:root.jar-ios-native .jar26-hero-grid h1,
+:root.jar-ios-native .jar-prod-page-head h1 {
+  color:var(--jar-ios-ink)!important;letter-spacing:-.035em!important;
+  font-weight:800!important;
+}
+:root.jar-ios-native .jar26-hero-grid p,
+:root.jar-ios-native .jar-prod-page-head p,
+:root.jar-ios-native .jar26-intro p {
+  color:var(--jar-ios-subtle)!important;
+  line-height:1.5!important;
+}
+:root.jar-ios-native .jar26-intro {
+  background:linear-gradient(150deg, #eff5f1, var(--jar-ios-paper) 80%)!important;
+  background:linear-gradient(150deg, color-mix(in srgb, var(--jar-ios-primary) 8%, var(--jar-ios-paper)), var(--jar-ios-paper) 80%)!important;
+  border:1px solid var(--jar-ios-line)!important;
+  box-shadow:0 7px 28px rgba(20,53,43,.045)!important;
+  border-radius:22px!important;
+}
+:root.jar-ios-native .jar26-summary-card,
+:root.jar-ios-native .jar-prod-fullpage,
+:root.jar-ios-native .jar-todo-card,
+:root.jar-ios-native .jar-private-view,
+:root.jar-ios-native .jar-prod-more-grid > button,
+:root.jar-ios-native .card,
+:root.jar-ios-native .stat-card,
+:root.jar-ios-native .reminders-card {
+  background:var(--jar-ios-paper)!important;
+  color:var(--jar-ios-ink)!important;
+  border:1px solid var(--jar-ios-line)!important;
+  box-shadow:0 4px 18px rgba(17,49,39,.035)!important;
+  border-radius:19px!important;
+}
+:root.jar-ios-native .jar26-summary-card strong { color:var(--jar-ios-ink)!important; font-weight:800!important; }
+:root.jar-ios-native .jar26-summary-card small { color:var(--jar-ios-subtle)!important; }
+:root.jar-ios-native .jar26-summary-icon { border-radius:12px!important; }
+:root.jar-ios-native .jar-prod-more-grid > button {text-align:left!important; min-height:80px!important;}
+:root.jar-ios-native .jar-prod-more-grid > button strong {font-weight:750!important;}
+:root.jar-ios-native .jar-prod-more-grid > button small {line-height:1.4!important; color:var(--jar-ios-subtle)!important;}
+:root.jar-ios-native .jar-prod-smart,
+:root.jar-ios-native .jar-prod-todo-form,
+:root.jar-ios-native .jar-prod-page-head { min-width:0!important; }
+:root.jar-ios-native .jar-prod-smart :is(input,textarea),
+:root.jar-ios-native .jar-prod-todo-form input { width:100%!important; max-width:100%!important; }
+:root.jar-ios-native .jar-prod-smart :is(button,.primary-button),
+:root.jar-ios-native .jar-prod-todo-form button {
+  border-radius:13px!important;min-height:46px!important;font-weight:750!important;
+}
+:root.jar-ios-native .wizard-modal,
+:root.jar-ios-native .jar-settings-modal,
+:root.jar-ios-native .modal-backdrop .modal {
+  color:var(--jar-ios-ink)!important;
+  background:var(--jar-ios-paper)!important;
+  border:1px solid var(--jar-ios-line)!important;
+  box-shadow:0 -12px 50px rgba(23,52,43,.13)!important;
+}
+:root.jar-ios-native .wizard-modal .wizard-step-heading,
+:root.jar-ios-native .wizard-modal .modal-header h2 {color:var(--jar-ios-ink)!important;}
+:root.jar-ios-native .wizard-modal .wizard-step-desc {color:var(--jar-ios-subtle)!important;}
+:root.jar-ios-native .wizard-modal .wizard-hint-box {
+  color:var(--jar-ios-subtle)!important;
+  background:#f3f8f4!important;
+  background:color-mix(in srgb, var(--jar-ios-primary) 6%, var(--jar-ios-paper))!important;
+  border:1px solid var(--jar-ios-line)!important;
+}
+:root.jar-ios-native .jar-entry-switch {gap:7px!important;}
+:root.jar-ios-native .jar-entry-switch > button {
+  border-radius:11px!important;
+  background:var(--jar-ios-paper)!important;
+  border:1px solid var(--jar-ios-line)!important;
+  color:var(--jar-ios-ink)!important;
+}
+:root.jar-ios-native .jar-entry-switch > button.active {
+  color:var(--jar-ios-accent-ink)!important;
+  background:var(--jar-ios-primary)!important;
+  border-color:var(--jar-ios-primary)!important;
+}
+:root.jar-ios-native .wizard-footer :is(.primary-button,.wizard-next,.wizard-save),
+:root.jar-ios-native .jar-prod-smart :is(.primary-button,.jar26-action),
+:root.jar-ios-native .jar-prod-todo-form button {
+  background:var(--jar-ios-primary)!important;
+  color:var(--jar-ios-accent-ink)!important;
+  border-color:var(--jar-ios-primary)!important;
+}
+:root.jar-ios-native #jar-native-push-controls {
+  grid-column:1 / -1;
+  margin:10px 0 2px!important;
+  padding:17px!important;
+  background:var(--jar-ios-paper)!important;
+  border:1px solid var(--jar-ios-line)!important;
+  color:var(--jar-ios-ink)!important;
+  border-radius:18px!important;
+  box-shadow:0 4px 18px rgba(17,49,39,.035);
+}
+:root.jar-ios-native #jar-native-push-controls button {min-height:44px!important;}
+/* The standalone paywall shouldn't sit behind the Dynamic Island. */
+:root.jar-ios-native body:not(.jar-ios-dashboard-layout) {
+  padding-top:max(64px, calc(env(safe-area-inset-top, 0px) + 12px))!important;
+  padding-bottom:max(22px, env(safe-area-inset-bottom, 0px))!important;
+}
+@media (max-width:850px) {
+  :root.jar-ios-native body.jar-ios-dashboard-layout {margin:0!important;padding:0!important;}
+  :root.jar-ios-native .app,
+  :root.jar-ios-native .app .main {
+    box-sizing:border-box!important;
+    width:100%!important;max-width:100%!important;
+    min-width:0!important;
+    padding-top:0!important;
+    margin-top:0!important;
+  }
+  :root.jar-ios-native body.jar-ios-dashboard-layout .mobile-header {
+    position:sticky!important;top:0!important;
+    box-sizing:border-box!important;
+    margin:0!important;
+    width:100%!important;
+    min-height:calc(max(50px, env(safe-area-inset-top, 0px)) + 54px)!important;
+    height:auto!important;
+    padding:max(50px, env(safe-area-inset-top, 0px)) 16px 10px!important;
+    display:flex!important;align-items:center!important;gap:10px!important;
+    background:var(--jar-ios-paper)!important;
+    color:var(--jar-ios-ink)!important;
+    border-bottom:1px solid var(--jar-ios-line)!important;
+    box-shadow:0 4px 12px rgba(23,50,42,.03)!important;
+    z-index:180!important;
+  }
+  :root.jar-ios-native .mobile-header .mobile-brand {
+    flex:1 1 auto!important;min-width:0!important;
+    font-size:17px!important;font-weight:800!important;
+    overflow:hidden!important;text-overflow:ellipsis!important;
+    color:var(--jar-ios-ink)!important;
+  }
+  :root.jar-ios-native .mobile-header .mobile-menu-button,
+  :root.jar-ios-native .mobile-header .jar-ios-back-button {
+    display:inline-flex!important;align-items:center!important;justify-content:center!important;
+    width:43px!important;min-width:43px!important;height:43px!important;
+    margin:0!important;padding:0!important;border-radius:13px!important;
+    background:#edf4f0!important;
+    background:color-mix(in srgb,var(--jar-ios-primary) 7%, var(--jar-ios-paper))!important;
+    border:1px solid var(--jar-ios-line)!important;
+    color:var(--jar-ios-ink)!important;font-size:17px!important;
+  }
+  :root.jar-ios-native .mobile-header #jar-ios-dashboard-back[hidden] {display:none!important;}
+  :root.jar-ios-native .topbar {margin:0!important;padding:6px 14px!important;min-height:0!important;}
+  :root.jar-ios-native .main .content {
+    box-sizing:border-box!important;
+    padding:14px 14px calc(104px + env(safe-area-inset-bottom, 0px))!important;
+    margin:0!important;
+    width:100%!important;min-width:0!important;max-width:100%!important;
+  }
+  :root.jar-ios-native .jar26-intro {padding:20px 17px 18px!important;margin:0 0 14px!important;}
+  :root.jar-ios-native .jar26-hero-grid {display:block!important;}
+  :root.jar-ios-native .jar26-hero-grid h1 {font-size:clamp(24px,7.2vw,30px)!important;line-height:1.16!important;margin:7px 0!important;}
+  :root.jar-ios-native .jar26-hero-grid p {font-size:14px!important;line-height:1.45!important;margin:0 0 10px!important;}
+  :root.jar-ios-native .jar26-market {display:none!important;}
+  :root.jar-ios-native .jar26-summary-card {min-width:0!important;padding:13px 9px!important;gap:8px!important;}
+  :root.jar-ios-native .jar26-summary-card strong {font-size:clamp(23px,7vw,29px)!important;}
+  :root.jar-ios-native .jar26-summary-card small {font-size:11px!important;}
+  :root.jar-ios-native .jar26-summary-icon {width:34px!important;height:34px!important;}
+  :root.jar-ios-native .jar-prod-page-head {margin:0 0 18px!important;padding:0 2px!important;}
+  :root.jar-ios-native .jar-prod-page-head h1 {font-size:clamp(25px,7.5vw,32px)!important;margin:7px 0!important;}
+  :root.jar-ios-native .jar-prod-page-head p {font-size:14px!important;}
+  :root.jar-ios-native .jar-prod-fullpage {padding:18px 15px!important;border-radius:19px!important;}
+  :root.jar-ios-native .jar-prod-todo-form {display:flex!important;gap:9px!important;}
+  :root.jar-ios-native .jar-prod-todo-form input {flex:1 1 auto!important;min-width:0!important;}
+  :root.jar-ios-native .jar-prod-todo-form button {flex:0 0 auto!important;padding:10px 13px!important;}
+  :root.jar-ios-native .jar26-bottom {
+    position:fixed!important;inset:auto 0 0 0!important;
+    display:grid!important;
+    grid-template-columns:repeat(5,minmax(0,1fr))!important;
+    padding:6px 10px max(8px,env(safe-area-inset-bottom,0px))!important;
+    gap:3px!important;height:auto!important;min-height:70px!important;
+    z-index:500!important;
+    border-top:1px solid var(--jar-ios-line)!important;
+    background:var(--jar-ios-paper)!important;
+    box-shadow:0 -7px 22px rgba(20,42,37,.07)!important;
+    backdrop-filter:blur(12px);
+  }
+  :root.jar-ios-native .jar26-bottom > button {
+    box-sizing:border-box!important;display:flex!important;
+    flex-direction:column!important;align-items:center!important;justify-content:center!important;
+    gap:3px!important;min-width:0!important;min-height:55px!important;
+    padding:6px 2px!important;margin:0!important;border-radius:13px!important;
+    color:var(--jar-ios-subtle)!important;
+    font-size:10px!important;font-weight:650!important;
+  }
+  :root.jar-ios-native .jar26-bottom > button.is-active {
+    color:var(--jar-ios-primary)!important;
+    background:#ecf4ef!important;
+    background:color-mix(in srgb,var(--jar-ios-primary) 8%,var(--jar-ios-paper))!important;
+  }
+  :root.jar-ios-native .jar26-bottom .jar26-nav-ico {font-size:22px!important;line-height:1!important;}
+  :root.jar-ios-native .jar26-bottom .jar26-add>span {
+    display:grid!important;place-items:center!important;
+    width:51px!important;height:51px!important;
+    margin:-15px auto -3px!important;
+    font-size:31px!important;line-height:1!important;font-weight:450!important;
+    border-radius:17px!important;
+    background:var(--jar-ios-primary)!important;color:var(--jar-ios-accent-ink)!important;
+    box-shadow:0 7px 16px rgba(33,79,65,.18)!important;
+  }
+  :root.jar-ios-native .modal-backdrop.show,
+  :root.jar-ios-native #modalBackdrop.show {z-index:1100!important;}
+  :root.jar-ios-native #modalBackdrop.show {
+    top:max(44px, env(safe-area-inset-top, 0px))!important;
+    bottom:var(--jar-ios-keyboard-bottom, 0px)!important;
+    padding:0!important;align-items:flex-end!important;
+  }
+  :root.jar-ios-native #modalBackdrop.show > .wizard-modal {
+    max-height:100%!important;
+    width:100%!important;min-height:0!important;
+    border-radius:22px 22px 0 0!important;
+    overflow:hidden!important;
+  }
+  :root.jar-ios-native #modalBackdrop.show > .wizard-modal #reminderForm:not([hidden]) {
+    display:flex!important;flex-direction:column!important;
+    flex:1 1 auto!important;min-height:0!important;overflow:hidden!important;
+  }
+  :root.jar-ios-native #modalBackdrop.show #wizardTouchArea {
+    flex:1 1 auto!important;min-height:0!important;
+    overflow-y:auto!important;overflow-x:hidden!important;
+    -webkit-overflow-scrolling:touch!important;
+    padding:13px 17px 22px!important;touch-action:pan-y!important;
+  }
+  :root.jar-ios-native #modalBackdrop.show .modal-header {
+    flex:0 0 auto!important;padding:16px 18px 12px!important;
+    background:var(--jar-ios-paper)!important;
+  }
+  :root.jar-ios-native #modalBackdrop.show .wizard-progress {flex:0 0 auto!important;padding:10px 17px 0!important;}
+  :root.jar-ios-native #modalBackdrop.show .wizard-footer {
+    flex:0 0 auto!important;position:relative!important;
+    padding:12px 17px max(13px,env(safe-area-inset-bottom,0px))!important;
+    background:var(--jar-ios-paper)!important;border-top:1px solid var(--jar-ios-line)!important;
+  }
+  :root.jar-ios-native #modalBackdrop.show .jar-entry-switch {padding:9px 17px 0!important;flex:0 0 auto!important;}
+  :root.jar-ios-native #modalBackdrop.show .jar-entry-switch button {min-height:43px!important;padding:9px 11px!important;font-size:12px!important;}
+  :root.jar-ios-native #modalBackdrop.show .wizard-step-desc {font-size:13px!important;margin-bottom:12px!important;}
+  :root.jar-ios-native #modalBackdrop.show .wizard-step-heading {font-size:21px!important;margin:0 0 8px!important;}
+  :root.jar-ios-native #modalBackdrop.show .wizard-step .field textarea {min-height:96px!important;max-height:180px!important;}
+  :root.jar-ios-native #modalBackdrop.show .wizard-advanced summary {min-height:48px!important;padding:13px!important;}
+  :root.jar-ios-native .mobile-menu {z-index:1250!important;}
+  :root.jar-ios-native #mobileMenuBackdrop {z-index:1200!important;}
+}
+@media (prefers-reduced-motion:reduce) {
+  :root.jar-ios-native .wizard-step {animation:none!important;transition:none!important;}
+}
+
+:root.jar-ios-native .jar-ios-build-meta {
+  grid-column:1/-1;
+  padding:10px 2px;
+  margin:2px 0 0!important;
+  color:var(--jar-ios-subtle)!important;
+  font:500 12px/1.4 -apple-system,BlinkMacSystemFont,system-ui,sans-serif;
+  word-break:break-word;
+}

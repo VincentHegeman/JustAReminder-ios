@@ -30,6 +30,7 @@ workflows:
           node jar-install-storekit-sandbox.mjs
           node jar-test-storekit-sandbox.mjs
           node jar-install-native-push.mjs
+          node scripts/write-ios-build-info.mjs
           npm install
           node --check www/ios/native-push.js
           npm run check

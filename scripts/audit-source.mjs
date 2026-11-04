@@ -7,7 +7,7 @@ const root=process.cwd();
 const required=[
  'www/index.html','www/prive/inloggen.html','www/prive/account.html','www/prive/dashboard.html',
  'www/prive/instellingen.html','www/family/index.html','www/family/family-dashboard.html','www/family/agenda-scanner.html',
- 'www/ios/abonnementen.html','www/ios/native-fixes.js','www/ios/native-fixes.css',
+ 'www/ios/abonnementen.html','www/ios/native-fixes.js','www/ios/native-fixes.css','www/ios/launch-design.css',
  'www/ios/native-session.js','www/ios/native-navigation.js','www/ios/ios-checkout-guard.js','www/ios/product-catalog.js',
  'resources/ios/JustAReminder-AppIcon-1024.png','capacitor.config.json','codemagic.yaml'
 ];
