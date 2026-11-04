@@ -119,7 +119,21 @@
     }
   }
 
+  function installLaunchDesign() {
+    // Load after the dashboards' many inline style blocks so the native UI
+    // has one final, predictable cascade. Public website/PWA never reaches here.
+    if (document.getElementById('jar-ios-launch-design')) return;
+    var script = document.querySelector('script[src*="native-fixes.js"]');
+    if (!script || !script.src) return;
+    var link = document.createElement('link');
+    link.id = 'jar-ios-launch-design';
+    link.rel = 'stylesheet';
+    link.href = new URL('launch-design.css', script.src).href;
+    document.head.appendChild(link);
+  }
+
   function setup() {
+    installLaunchDesign();
     document.body.classList.toggle('jar-ios-dashboard-layout',!!document.querySelector('.mobile-header'));
     installedAppUI();
     nativeStatus();
@@ -189,7 +203,7 @@
 
     var keyboard = window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Keyboard;
     if (keyboard && typeof keyboard.setAccessoryBarVisible === 'function') {
-      Promise.resolve(keyboard.setAccessoryBarVisible({ isVisible: false })).catch(function () {});
+      Promise.resolve(keyboard.setAccessoryBarVisible({ isVisible: true })).catch(function () {});
     }
 
     window.addEventListener('focusin', function (e) {
