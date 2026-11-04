@@ -12,7 +12,7 @@ function instance(path){
  const elements=new Map();
  const header={querySelector(){return null},insertBefore(el){elements.set(el.id,el)}};
  const document={referrer:'',readyState:'complete',visibilityState:'visible',body:{},
-  createElement(tag){return {tag,id:'',hidden:false,className:'',type:'',textContent:'',addEventListener(name,fn){this[name]=fn}}},
+  createElement(tag){return {tag,id:'',hidden:false,className:'',type:'',textContent:'',attributes:{},setAttribute(k,v){this.attributes[k]=v},getAttribute(k){return this.attributes[k]},addEventListener(name,fn){this[name]=fn}}},
   getElementById(id){return elements.get(id)||null},
   querySelector(sel){return sel==='.mobile-header'?header:null},
   addEventListener(){}};
@@ -30,6 +30,8 @@ function instance(path){
  app.window.jarProdNavigate('todo');
  assert.equal(app.navCalls.at(-1),'todo');
  assert.equal(app.elements.get('jar-ios-dashboard-back').hidden,false);
+ assert.equal(app.elements.get('jar-ios-dashboard-back').textContent,'←','compact arrow only');
+ assert.equal(app.elements.get('jar-ios-dashboard-back').getAttribute?.('aria-label') || app.elements.get('jar-ios-dashboard-back').attributes?.['aria-label'],'Ga terug','accessible back label');
  app.window.JAR_iOS_back();
  assert.equal(app.navCalls.at(-1),'overview','back returns to previous tab without logging out');
  assert.equal(app.assigned.length,0,'no redirects on tab back');

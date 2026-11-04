@@ -296,3 +296,27 @@
   font:500 12px/1.4 -apple-system,BlinkMacSystemFont,system-ui,sans-serif;
   word-break:break-word;
 }
+
+/* Native iPhone: compact back arrow with an accessible name, no oversized text. */
+:root.jar-ios-native .jar-ios-back-button {
+  box-sizing:border-box!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  flex:0 0 43px!important;
+  width:43px!important;
+  min-width:43px!important;
+  max-width:43px!important;
+  height:43px!important;
+  min-height:43px!important;
+  max-height:43px!important;
+  padding:0!important;
+  margin:0!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+  border-radius:13px!important;
+  font-size:25px!important;
+  line-height:1!important;
+  font-weight:500!important;
+}
+:root.jar-ios-native .jar-ios-back-button[hidden] { display:none!important; }
