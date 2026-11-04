@@ -8,16 +8,18 @@ import {fileURLToPath} from 'node:url';
 const root=path.resolve(process.cwd());
 const here=path.dirname(fileURLToPath(import.meta.url));
 const native=process.argv.includes('--native');
+const releaseChannel=process.env.JAR_RELEASE_CHANNEL||'testflight';
+if(releaseChannel!=='testflight')throw Error('Apple productie-release is nog niet goedgekeurd: stop deze sandbox-installatie.');
 function file(rel){return path.join(root,rel);}
 function read(rel){if(!fs.existsSync(file(rel)))throw Error('Ontbrekend bestand: '+rel);return fs.readFileSync(file(rel),'utf8');}
 function write(rel,text){fs.mkdirSync(path.dirname(file(rel)),{recursive:true});fs.writeFileSync(file(rel),text,'utf8');}
 if(JSON.parse(read('capacitor.config.json')).appId!=='eu.justareminder.app')throw Error('Verkeerd bundle ID');
 if(!native){
-  // TestFlight runs StoreKit sandbox; this does not turn purchases on.
+  // Explicit TestFlight sandbox only: no real billing or production rights.
   const config='www/app-config.js';let conf=read(config);
   if(!conf.includes('iosPurchaseEnvironment:')){
     if(!/iosPurchasesReady:\s*false/.test(conf))throw Error('Onverwachte Apple purchase release gate');
-    conf=conf.replace(/iosPurchasesReady:\s*false\s*,/, "iosPurchasesReady: false,\n  iosPurchaseEnvironment: 'Sandbox',");
+    conf=conf.replace(/iosPurchasesReady:\s*false\s*,/, "iosPurchasesReady: false,\n  iosSandboxTestPurchases: true,\n  iosPurchaseEnvironment: 'Sandbox',");
     if(!conf.includes('iosPurchaseEnvironment:'))throw Error('Kon StoreKit TestFlight-omgeving niet zetten');
     write(config,conf);
   }
