@@ -107,6 +107,15 @@
     if (!viewport) return;
     var rect = node.getBoundingClientRect();
     var usableBottom = viewport.offsetTop + viewport.height - 18;
+    var wizardBody = node.closest('#wizardTouchArea');
+    if (wizardBody) {
+      var bodyRect = wizardBody.getBoundingClientRect();
+      var top = Math.max(bodyRect.top + 12, viewport.offsetTop + 12);
+      var bottom = Math.min(bodyRect.bottom - 12, usableBottom);
+      if (rect.bottom > bottom) wizardBody.scrollTop += rect.bottom - bottom + 12;
+      else if (rect.top < top) wizardBody.scrollTop -= top - rect.top + 12;
+      return;
+    }
     if (rect.bottom > usableBottom || rect.top < viewport.offsetTop + 12) {
       node.scrollIntoView({ block: 'center', inline: 'nearest', behavior: 'auto' });
     }
@@ -141,7 +150,14 @@
     function updateVisualHeight() {
       var v = window.visualViewport;
       var h = v ? v.height : window.innerHeight;
-      if (h && h > 180) { var value=Math.round(h)+'px'; if (root.style.getPropertyValue('--jar-visible-height')!==value) root.style.setProperty('--jar-visible-height',value); }
+      if (h && h > 180) {
+        var value = Math.round(h) + 'px';
+        if (root.style.getPropertyValue('--jar-visible-height') !== value) root.style.setProperty('--jar-visible-height', value);
+      }
+      // Raise native modals over the keyboard when WKWebView keeps its old height.
+      var covered = v ? Math.max(0, window.innerHeight - v.height - v.offsetTop) : 0;
+      var inset = Math.round(covered) + 'px';
+      if (root.style.getPropertyValue('--jar-ios-keyboard-bottom') !== inset) root.style.setProperty('--jar-ios-keyboard-bottom', inset);
     }
     updateVisualHeight();
     window.addEventListener('resize', function(){ updateVisualHeight(); updateContrast(); }, { passive: true });
