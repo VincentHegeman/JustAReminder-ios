@@ -2,6 +2,8 @@
 
 Dit document is een veiligheids- en acceptatielijst. Een GitHub-commit of geslaagde IPA-build bewijst niet dat de app klaar is voor betalende klanten.
 
+**Voorkom dubbel testen:** raadpleeg eerst [GETEST-VOOR-LANCERING-2026-11-04.md](GETEST-VOOR-LANCERING-2026-11-04.md) voor de reeds door de eigenaar uitgevoerde Mollie-TEST-, APNs- en dashboardtests. Apple StoreKit-Sandbox blijft een afzonderlijke openstaande betaaltest.
+
 ## Gereed in de broncode (nog op echt toestel verifiëren)
 - [x] Native-only mobiele visuele laag voor Privé en Family in `www/ios/launch-design.css`.
 - [x] CSS wordt ná de omvangrijke bestaande inline dashboardstijlen geladen.
