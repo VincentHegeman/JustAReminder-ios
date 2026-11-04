@@ -207,7 +207,9 @@
     });
     document.addEventListener('click', function () { window.setTimeout(function(){ taskCopy(); compactHeaderArea(); fixPersonalizationTabs(); }, 0); }, true);
 
-    var keyboard = window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Keyboard;
+    var cap = window.Capacitor;
+    var keyboard = cap && (cap.Plugins?.Keyboard ||
+      (cap.isPluginAvailable?.('Keyboard') && cap.registerPlugin?.('Keyboard')));
     function keyboardShow(event) {
       var value = Number(event && event.keyboardHeight);
       nativeKeyboardHeight = Number.isFinite(value) && value > 0 ? value : 0;
