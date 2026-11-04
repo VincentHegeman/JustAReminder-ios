@@ -55,6 +55,7 @@
   line-height:1.5!important;
 }
 :root.jar-ios-native .jar26-intro {
+  background:linear-gradient(150deg, #eff5f1, var(--jar-ios-paper) 80%)!important;
   background:linear-gradient(150deg, color-mix(in srgb, var(--jar-ios-primary) 8%, var(--jar-ios-paper)), var(--jar-ios-paper) 80%)!important;
   border:1px solid var(--jar-ios-line)!important;
   box-shadow:0 7px 28px rgba(20,53,43,.045)!important;
@@ -102,6 +103,7 @@
 :root.jar-ios-native .wizard-modal .wizard-step-desc {color:var(--jar-ios-subtle)!important;}
 :root.jar-ios-native .wizard-modal .wizard-hint-box {
   color:var(--jar-ios-subtle)!important;
+  background:#f3f8f4!important;
   background:color-mix(in srgb, var(--jar-ios-primary) 6%, var(--jar-ios-paper))!important;
   border:1px solid var(--jar-ios-line)!important;
 }
@@ -176,6 +178,7 @@
     display:inline-flex!important;align-items:center!important;justify-content:center!important;
     width:43px!important;min-width:43px!important;height:43px!important;
     margin:0!important;padding:0!important;border-radius:13px!important;
+    background:#edf4f0!important;
     background:color-mix(in srgb,var(--jar-ios-primary) 7%, var(--jar-ios-paper))!important;
     border:1px solid var(--jar-ios-line)!important;
     color:var(--jar-ios-ink)!important;font-size:17px!important;
@@ -226,6 +229,7 @@
   }
   :root.jar-ios-native .jar26-bottom > button.is-active {
     color:var(--jar-ios-primary)!important;
+    background:#ecf4ef!important;
     background:color-mix(in srgb,var(--jar-ios-primary) 8%,var(--jar-ios-paper))!important;
   }
   :root.jar-ios-native .jar26-bottom .jar26-nav-ico {font-size:22px!important;line-height:1!important;}
