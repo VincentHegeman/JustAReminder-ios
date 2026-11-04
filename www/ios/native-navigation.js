@@ -103,7 +103,9 @@
         button.id = 'jar-ios-dashboard-back';
         button.type = 'button';
         button.className = 'jar-ios-back-button';
-        button.textContent = '← Vorige';
+        button.textContent = '←';
+    button.setAttribute('aria-label', 'Ga terug');
+    button.title = 'Ga terug';
         button.hidden = true;
         button.addEventListener('click', back);
         header.insertBefore(button, header.querySelector('.mobile-brand') || header.firstChild);
