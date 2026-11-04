@@ -21,5 +21,8 @@ assert.match(native,/\.appAccountToken\(accountUUID\)/);
 assert.match(cfg,/iosPurchasesReady:\s*false/);
 assert.match(cfg,/iosPurchaseEnvironment:\s*'Sandbox'/);
 assert(!source.includes('jar_user_plan_entitlements'));
+assert.match(source,/sandboxRecorded/,'Sandbox transactions must be server-recorded before finish');
+assert.match(source,/env==='Sandbox'/,'Sandbox completion must be separated from production rights');
+assert.match(source,/Er zijn geen productie-rechten gewijzigd/,'Restore must not claim production rights in sandbox');
 assert(!source.includes('mollie.com'));
 console.log('StoreKit volledige clientflow aanwezig: products, preflight, signed purchase, server verify, finish, restore. Live aankoopflag UIT.');
