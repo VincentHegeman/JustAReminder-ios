@@ -283,3 +283,12 @@
 @media (prefers-reduced-motion:reduce) {
   :root.jar-ios-native .wizard-step {animation:none!important;transition:none!important;}
 }
+
+:root.jar-ios-native .jar-ios-build-meta {
+  grid-column:1/-1;
+  padding:10px 2px;
+  margin:2px 0 0!important;
+  color:var(--jar-ios-subtle)!important;
+  font:500 12px/1.4 -apple-system,BlinkMacSystemFont,system-ui,sans-serif;
+  word-break:break-word;
+}
