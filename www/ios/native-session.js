@@ -170,7 +170,9 @@
     button.type = 'button';
     button.className = 'jar-ios-back-button';
     button.setAttribute('data-jar-ios-back','');
-    button.textContent = '← Vorige';
+    button.textContent = '←';
+    button.setAttribute('aria-label', 'Ga terug');
+    button.title = 'Ga terug';
     button.addEventListener('click', function(){ api.back(api.resumeUrl()); });
     host.insertBefore(button, host.firstChild);
   }
