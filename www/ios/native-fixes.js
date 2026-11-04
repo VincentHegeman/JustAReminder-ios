@@ -22,22 +22,20 @@
   }
 
   function nativeStatus() {
-    ['jarHomePushState', 'jarPushStatusText', 'notificationState'].forEach(function (id) {
+    // The legacy web-push label is not the status of native APNs. Never overwrite
+    // a real registration/error message from the native push integration.
+    ['jarHomePushState', 'jarPushStatusText', 'notificationState', 'jarProdPushStatus'].forEach(function (id) {
       var el = document.getElementById(id);
-      if (el && (/Open als app|Webpush|browser/i.test(el.textContent || '') || !(el.textContent || '').trim())) {
-        el.textContent = 'iPhone-meldingen nog niet beschikbaar in deze testversie';
+      if (!el) return;
+      var value = (el.textContent || '').trim();
+      if (!value || /iPhone-meldingen nog niet beschikbaar|iPhone-meldingen worden in een volgende testversie|Open als app|Webpush|browsermeldingen|niet ondersteund/i.test(value)) {
+        el.textContent = 'iPhone-push: beheer meldingen via het groene vak op je dashboard.';
       }
     });
     ['jarSubscriptionStatusText', 'jarSubscriptionModalStatus'].forEach(function (id) {
       var el = document.getElementById(id);
       if (el && /Supabase-pakket|Mollie LIVE|Geverifieerde betaalrechten|Opgehaald:/i.test(el.textContent || '')) {
         el.textContent = 'Apple-aankopen zijn nog niet beschikbaar. Je bestaande abonnementsrechten worden door je account bepaald.';
-      }
-    });
-    ['jarProdPushStatus', 'jarPushStatusText', 'jarHomePushState'].forEach(function (id) {
-      var el = document.getElementById(id);
-      if (el && /webpush|browser|niet ondersteund|nog niet beschikbaar/i.test(el.textContent || '')) {
-        el.textContent = 'iPhone-meldingen worden in een volgende testversie toegevoegd.';
       }
     });
   }
@@ -107,6 +105,15 @@
     if (!viewport) return;
     var rect = node.getBoundingClientRect();
     var usableBottom = viewport.offsetTop + viewport.height - 18;
+    var wizardBody = node.closest('#wizardTouchArea');
+    if (wizardBody) {
+      var bodyRect = wizardBody.getBoundingClientRect();
+      var top = Math.max(bodyRect.top + 12, viewport.offsetTop + 12);
+      var bottom = Math.min(bodyRect.bottom - 12, usableBottom);
+      if (rect.bottom > bottom) wizardBody.scrollTop += rect.bottom - bottom + 12;
+      else if (rect.top < top) wizardBody.scrollTop -= top - rect.top + 12;
+      return;
+    }
     if (rect.bottom > usableBottom || rect.top < viewport.offsetTop + 12) {
       node.scrollIntoView({ block: 'center', inline: 'nearest', behavior: 'auto' });
     }
@@ -141,16 +148,37 @@
     function updateVisualHeight() {
       var v = window.visualViewport;
       var h = v ? v.height : window.innerHeight;
-      if (h && h > 180) { var value=Math.round(h)+'px'; if (root.style.getPropertyValue('--jar-visible-height')!==value) root.style.setProperty('--jar-visible-height',value); }
+      if (h && h > 180) {
+        var value = Math.round(h) + 'px';
+        if (root.style.getPropertyValue('--jar-visible-height') !== value) root.style.setProperty('--jar-visible-height', value);
+      }
+      // Raise native modals over the keyboard when WKWebView keeps its old height.
+      var covered = v ? Math.max(0, window.innerHeight - v.height - v.offsetTop) : 0;
+      var inset = Math.round(covered) + 'px';
+      if (root.style.getPropertyValue('--jar-ios-keyboard-bottom') !== inset) root.style.setProperty('--jar-ios-keyboard-bottom', inset);
     }
     updateVisualHeight();
     window.addEventListener('resize', function(){ updateVisualHeight(); updateContrast(); }, { passive: true });
     if (window.visualViewport) window.visualViewport.addEventListener('resize', updateVisualHeight, { passive: true });
 
+    // The old web permission button must not claim that native APNs is missing.
+    // Reuse the native opt-in, without requesting permission on page load.
     document.querySelectorAll('[onclick*="requestNotificationPermission"]').forEach(function (button) {
-      button.disabled = true;
-      button.title = 'iPhone-meldingen worden pas ingeschakeld wanneer APNs en de server zijn gekoppeld';
-      button.textContent = 'Nog niet beschikbaar';
+      if (button.dataset.jarIosPushWired === '1') return;
+      button.dataset.jarIosPushWired = '1';
+      button.removeAttribute('onclick');
+      button.disabled = false;
+      button.title = 'Schakel native iPhone-meldingen in';
+      button.textContent = 'iPhone-meldingen inschakelen';
+      button.addEventListener('click', function () {
+        var nativePush = window.JARNativePush;
+        if (nativePush && typeof nativePush.enable === 'function') {
+          void nativePush.enable();
+        } else {
+          var status = document.getElementById('jarPushStatusText') || document.getElementById('jarHomePushState');
+          if (status) status.textContent = 'Open het groene vak iPhone-meldingen op het dashboard.';
+        }
+      });
     });
 
     document.addEventListener('change', function (e) {

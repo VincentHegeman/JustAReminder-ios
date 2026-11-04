@@ -252,3 +252,39 @@
 /* Give standalone iOS screens their own status-bar clearance. */
 :root.jar-ios-native body:not(.jar-ios-dashboard-layout) { padding-top:max(env(safe-area-inset-top,0px), 44px)!important; }
 :root.jar-ios-native body.jar-ios-dashboard-layout { padding-top:0!important; }
+
+/* JAR iOS keyboard-safe reminder/task modal (2026-11-04).
+ * Native Capacitor only: both entry modes, without changing web/PWA.
+ */
+@media (max-width: 850px) {
+  :root.jar-ios-native .modal-backdrop.show {
+    bottom: var(--jar-ios-keyboard-bottom, 0px) !important;
+  }
+  :root.jar-ios-native #modalBackdrop.show > .wizard-modal {
+    max-height: max(180px, calc(var(--jar-visible-height, 100dvh) - max(env(safe-area-inset-top, 0px), 44px) - 8px)) !important;
+    min-height: 0 !important;
+    overflow: hidden !important;
+    display: flex !important;
+    flex-direction: column !important;
+  }
+  :root.jar-ios-native #modalBackdrop.show > .wizard-modal #reminderForm:not([hidden]) {
+    display: flex !important;
+    flex: 1 1 auto !important;
+    flex-direction: column !important;
+    min-height: 0 !important;
+    max-height: 100% !important;
+    overflow: hidden !important;
+  }
+  :root.jar-ios-native #modalBackdrop.show > .wizard-modal #wizardTouchArea {
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    overscroll-behavior-y: contain !important;
+    touch-action: pan-y !important;
+  }
+  :root.jar-ios-native #modalBackdrop.show > .wizard-modal .wizard-footer {
+    flex: 0 0 auto !important;
+  }
+}

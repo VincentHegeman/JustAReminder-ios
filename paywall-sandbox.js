@@ -66,7 +66,10 @@ async function appleProducts(){
 async function verifyAndFinish(transaction,env){
  if(!transaction?.signedTransaction||!transaction.transactionId)throw Error('Apple heeft geen ondertekende transactie teruggegeven');
  const result=await server('verify',{signedTransaction:transaction.signedTransaction,environment:env});
- if(!result.verified||!result.recorded||!result.rightsReady)throw Error('Apple-aankoop is geregistreerd, maar de abonnementsrechten zijn nog niet vrijgegeven.');
+ if(!result.verified||!result.recorded)throw Error('Apple-aankoop kon niet veilig worden geregistreerd.');
+ // A verified sandbox transaction must be finished, but never grants paid rights.
+ if(env==='Sandbox'&&!result.sandboxRecorded)throw Error('Sandbox-aankoop is nog niet veilig geregistreerd.');
+ if(env!=='Sandbox'&&!result.rightsReady)throw Error('De productie-abonnementsrechten zijn nog niet vrijgegeven.');
  const finish=await api.finishAfterServerVerification({transactionId:String(transaction.transactionId)});
  if(finish?.finished===false)console.info('Apple purchase already finished or no longer unfinished');
  return result;
@@ -84,7 +87,7 @@ async function buy(productId){
   else if(result?.status==='pending')message('Apple verwerkt de aankoop nog. Je rechten worden na bevestiging aangepast.');
   else if(result?.status==='verify_on_server'){
    await verifyAndFinish(result,result.environment==='Sandbox'?'Sandbox':environment);
-   message('Je Apple-abonnement is geverifieerd en actief. Open opnieuw je dashboard om je nieuwe rechten te zien.');
+   message(environment==='Sandbox' ? 'Apple Sandbox-test geslaagd. Er is geen echt abonnement geactiveerd en er zijn geen betaalrechten gewijzigd.' : 'Je Apple-abonnement is geverifieerd en actief. Open opnieuw je dashboard om je nieuwe rechten te zien.');
   }else throw Error('Onbekend antwoord van de App Store');
  }catch(e){message('Aankoop niet afgerond: '+(e.message||'Onbekende fout'));}
  finally{setBusy(false)}
@@ -103,7 +106,8 @@ async function restore(){
    try{await verifyAndFinish(transaction,transaction.environment==='Sandbox'?'Sandbox':'Production');done++}
    catch(e){errors++;console.warn('Restore failed',e?.message||e)}
   }
-  message(errors?`${done} abonnement(en) hersteld; ${errors} konden niet aan dit account worden gekoppeld. Gebruik het oorspronkelijke JustAReminder-account of neem contact op met support.`:
+  message(errors?`${done} transactie(s) geverifieerd; ${errors} konden niet aan dit account worden gekoppeld. Gebruik het oorspronkelijke JustAReminder-account of neem contact op met support.`:
+   environment==='Sandbox' ? `${done} Apple Sandbox-transactie(s) geverifieerd. Er zijn geen productie-rechten gewijzigd.` :
    `${done} Apple-abonnement(en) hersteld. Je rechten worden via de server bijgewerkt.`);
  }catch(e){message('Herstellen mislukt: '+(e.message||'Onbekende fout'));}
  finally{setBusy(false)}
