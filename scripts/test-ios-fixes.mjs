@@ -12,6 +12,16 @@ for(const p of ['www/prive/dashboard.html','www/family/family-dashboard.html']){
  assert(!get(p).includes('user-scalable=no'),p+' must preserve user zoom');
 }
 assert(get('www/ios/native-fixes.js').includes('isNativePlatform'), 'Native app detection is required');
+const design=get('www/ios/launch-design.css');
+assert.match(design,/jar-ios-native/,'Launch design must be iOS-native scoped');
+assert.match(design,/#modalBackdrop\.show/,'Native task modal needs keyboard-safe layout');
+assert.match(design,/jar26-bottom/,'Native five-tab navigation must be styled');
+assert.match(design,/jar26-hero-grid/,'Dashboard introduction must be styled');
+assert.match(get('www/ios/native-fixes.js'),/installLaunchDesign\(\)/,'Native launch styles must load');
+assert.match(get('www/ios/native-fixes.js'),/showBuildSource\(\)/,'Build ID must be available in More');
+assert.match(get('jar-native-push.js'),/#jarProdMorePage/,'Native push settings belong under More');
+assert.match(get('codemagic.yaml'),/write-ios-build-info\.mjs/,'Codemagic must stamp iOS source');
+assert.match(get('scripts/write-ios-build-info.mjs'),/git\('rev-parse','HEAD'\)/,'Build stamp must use the actual Git commit');
 const iosSource=get('www/ios/native-fixes.js');
 const iosCSS=get('www/ios/native-fixes.css');
 assert.match(iosSource,/wizardBody\.scrollTop/,'Focused task input must scroll inside modal');
