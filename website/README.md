@@ -9,7 +9,7 @@ Dit is de **aparte publieke marketingwebsite**, niet het Privé/Family-dashboard
 
 ## Vóór publicatie verplicht
 1. **Bepaal welk Vercel-project `www.justareminder.eu` host.** Verander de bestaande deployment niet voordat die toewijzing is bevestigd. Gebruik `website/` als Vercel **Root Directory** bij een afzonderlijk nieuw project of bij een gecontroleerde migratie.
-2. **Supportmailbox:** vraag de eigenaar welk écht ontvangen en getest supportadres klanten mogen gebruiken. Het supportscherm bevat voorlopig zichtbaar de tekst “Wordt vóór publicatie bevestigd”. Vervang dit door een werkend e-mailadres en `mailto:`-link. `noreply@justareminder.nl` mag niet zonder verificatie als supportmail worden gebruikt.
+2. **Supportmailbox:** eigenaar heeft `info@justareminder.eu` aangewezen. Supportpagina toont dit adres in NL/EN met `mailto:`-links. **Nog te controleren:** mailbox kan berichten ontvangen en wordt door support gelezen. Pas daarna als definitieve App Store Support URL gebruiken. Geen wachtwoorden of betaalgegevens via e-mail laten delen.
 3. **Privacy en voorwaarden:** controleer of `/privacy` en `/algemenen-voorwaarden` bestaan en juiste tekst tonen. Ze zijn niet in deze stagingmap opgenomen. Een vervangende site moet bestaande correcte juridische pagina's overnemen of opnieuw laten goedkeuren. Publiceer geen 404-links.
 4. **App Store Support URL:** gebruik pas `https://www.justareminder.eu/support/` nadat daadwerkelijk `HTTP 200`, een werkende contactmogelijkheid en privacylinks zijn bevestigd.
 5. **Prijzen:** 4,99/9,99 zijn *geplande* Nederlandse maandprijzen; definitieve Apple-producten en landenprijzen nog controleren. Geen live aankopen of checkout op de marketingwebsite activeren.
